@@ -8,6 +8,7 @@ import {
   useCallback,
   useEffect,
   useState,
+  useRef,
 } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { useDebounceCallback, useWindowSize } from 'usehooks-ts';
@@ -264,6 +265,65 @@ function PureArtifact({
       setPreviewVisible(true);
     }
   }, [metadata?.outputs]);
+
+  const hasAutoRun = useRef(false);
+
+  useEffect(() => {
+    if (
+      artifact.kind === 'code' &&
+      artifact.status === 'idle' &&
+      artifact.content &&
+      !hasAutoRun.current
+    ) {
+      hasAutoRun.current = true;
+
+      const content = artifact.content;
+      let outputCode = '';
+      const isFullHtml = /^\s*<!DOCTYPE html>|<html[\s>]/i.test(content);
+      if (isFullHtml) {
+        outputCode = content;
+      } else {
+        const transpiled = Babel.transform(content, {
+          presets: ['react', 'env'],
+        }).code || '';
+        outputCode = `
+          <!DOCTYPE html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <title>React Preview</title>
+              <style>body { margin: 0; padding: 0; }</style>
+              <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+              <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+            </head>
+            <body>
+              <div id="root"></div>
+              <script>
+                try {
+                  ${transpiled}
+                } catch (err) {
+                  document.body.innerHTML = '<pre style=\"color:red;\">' + err + '</pre>';
+                }
+              </script>
+            </body>
+          </html>
+        `;
+      }
+      setMetadata((metadata: any) => ({
+        ...metadata,
+        outputs: [
+          {
+            id: 'preview',
+            contents: [{ type: 'text', value: outputCode }],
+            status: 'completed',
+          },
+        ],
+      }));
+    }
+    if (artifact.status === 'streaming') {
+      hasAutoRun.current = false;
+    }
+  }, [artifact.status, artifact.content, artifact.kind, setMetadata]);
 
   return (
     <AnimatePresence>
@@ -550,6 +610,14 @@ function PureArtifact({
                   )}
                 </AnimatePresence>
               )}
+
+              {
+                metadata?.outputs && metadata.outputs.length > 0 && (
+                  <p>
+                    {metadata.outputs[0].contents[0].value}
+                  </p>
+                )
+              }
 
               <AnimatePresence>
                 {isCurrentVersion && (

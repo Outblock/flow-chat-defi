@@ -61,19 +61,48 @@ export const codeArtifact = new Artifact<'code', Metadata>({
       label: 'Run',
       description: 'Execute code',
       onClick: async ({ content, setMetadata }) => {
-        console.log('content ->', content);
-        let transpiledCode = '';
+        let outputCode = '';
         let error: any = null;
         try {
-          transpiledCode = Babel.transform(content, {
-            presets: ['react', 'env'],
-          }).code || '';
+          const isFullHtml = /^\s*<!DOCTYPE html>|<html[\s>]/i.test(content);
+          if (isFullHtml) {
+            // Don't transpile, just use as-is
+            outputCode = content;
+          } else {
+            // Transpile JS/JSX with Babel
+            const transpiled = Babel.transform(content, {
+              presets: ['react', 'env'],
+            }).code || '';
+            // Wrap in HTML template
+            outputCode = `
+              <!DOCTYPE html>
+              <html lang="en">
+                <head>
+                  <meta charset="UTF-8" />
+                  <title>React Preview</title>
+                  <style>body { margin: 0; padding: 0; }</style>
+                  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+                  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+                </head>
+                <body>
+                  <div id="root"></div>
+                  <script>
+                    try {
+                      ${transpiled}
+                    } catch (err) {
+                      document.body.innerHTML = '<pre style=\"color:red;\">' + err + '</pre>';
+                    }
+                  </script>
+                </body>
+              </html>
+            `;
+          }
           setMetadata((metadata) => ({
             ...metadata,
             outputs: [
               {
                 id: 'preview',
-                contents: [{ type: 'text', value: transpiledCode }],
+                contents: [{ type: 'text', value: outputCode }],
                 status: 'completed',
               },
             ],
