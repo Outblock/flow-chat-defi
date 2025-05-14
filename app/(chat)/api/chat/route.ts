@@ -4,8 +4,9 @@ import {
   createDataStream,
   smoothStream,
   streamText,
-  experimental_createMCPClient,
+  experimental_createMCPClient as createMCPClient,
 } from 'ai';
+import { Experimental_StdioMCPTransport as StdioMCPTransport } from 'ai/mcp-stdio';
 import { auth, type UserType } from '@/app/(auth)/auth';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import {
@@ -83,19 +84,19 @@ export async function POST(request: Request) {
 
     const userType: UserType = session.user.type;
 
-    const messageCount = await getMessageCountByUserId({
-      id: session.user.id,
-      differenceInHours: 24,
-    });
+    // const messageCount = await getMessageCountByUserId({
+    //   id: session.user.id,
+    //   differenceInHours: 24,
+    // });
 
-    if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
-      return new Response(
-        'You have exceeded your maximum number of messages for the day! Please try again later.',
-        {
-          status: 429,
-        },
-      );
-    }
+    // if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
+    //   return new Response(
+    //     'You have exceeded your maximum number of messages for the day! Please try again later.',
+    //     {
+    //       status: 429,
+    //     },
+    //   );
+    // }
 
     const chat = await getChatById({ id });
 
@@ -149,22 +150,14 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    const flowSseClient = await experimental_createMCPClient({
-      transport: {
-        type: 'sse',
-        url: 'https://flow-mcp-production.up.railway.app/sse',
-      },
+    const flowClient = await createMCPClient({
+      transport: new StdioMCPTransport({
+        command: 'node',
+        args: ['mcp/flow-mcp.js'],
+      }),
     });
 
-    const flowEVMClient = await experimental_createMCPClient({
-      transport: {
-        type: 'sse',
-        url: 'https://evm-mcp-server-production.up.railway.app/sse',
-      },
-    });
-
-    const flowTools = await flowSseClient.tools();
-    const flowEVMTools = await flowEVMClient.tools();
+    const flowTools = await flowClient.tools();
 
     const stream = createDataStream({
       execute: (dataStream) => {
@@ -173,21 +166,10 @@ export async function POST(request: Request) {
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages,
           maxSteps: 5,
-          // experimental_activeTools:
-          //   selectedChatModel === 'chat-model-reasoning'
-          //     ? []
-          //     : [
-          //         'getWeather',
-          //         'createDocument',
-          //         'updateDocument',
-          //         'requestSuggestions',
-          //         ...Object.keys(flowTools),
-          //       ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateUUID,
           tools: {
             ...flowTools,
-            ...flowEVMTools,
             getWeather,
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),
@@ -261,7 +243,8 @@ export async function POST(request: Request) {
     } else {
       return new Response(stream);
     }
-  } catch (_) {
+  } catch (error) {
+    console.error('Error ---->', error);
     return new Response('An error occurred while processing your request!', {
       status: 500,
     });
