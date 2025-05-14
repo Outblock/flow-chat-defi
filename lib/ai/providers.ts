@@ -12,6 +12,27 @@ import {
   reasoningModel,
   titleModel,
 } from './models.test';
+import { X } from 'lucide-react';
+
+const claudeModel = {
+  'chat-model': anthropic('claude-3-7-sonnet-20250219'),
+  'chat-model-reasoning': wrapLanguageModel({
+    model: anthropic('claude-3-7-sonnet-20250219'),
+    middleware: extractReasoningMiddleware({ tagName: 'think' }),
+  }),
+  'title-model': anthropic('claude-3-7-sonnet-20250219'),
+  'artifact-model': anthropic('claude-3-7-sonnet-20250219'),
+}
+
+const xAIModel = {
+  'chat-model': xai('grok-2-vision-1212'),
+  'chat-model-reasoning': wrapLanguageModel({
+    model: xai('grok-3-mini-beta'),
+    middleware: extractReasoningMiddleware({ tagName: 'think' }),
+  }),
+  'title-model': xai('grok-2-1212'),
+  'artifact-model': xai('grok-2-1212'),
+}
 
 export const myProvider = isTestEnvironment
   ? customProvider({
@@ -23,15 +44,7 @@ export const myProvider = isTestEnvironment
       },
     })
   : customProvider({
-      languageModels: {
-        'chat-model': anthropic('claude-3-7-sonnet-20250219'),
-        'chat-model-reasoning': wrapLanguageModel({
-          model: anthropic('claude-3-7-sonnet-20250219'),
-          middleware: extractReasoningMiddleware({ tagName: 'think' }),
-        }),
-        'title-model': anthropic('claude-3-7-sonnet-20250219'),
-        'artifact-model': anthropic('claude-3-7-sonnet-20250219'),
-      },
+      languageModels: xAIModel,
       imageModels: {
         'small-model': xai.image('grok-2-image'),
       },
