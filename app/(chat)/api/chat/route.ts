@@ -4,6 +4,7 @@ import {
   createDataStream,
   smoothStream,
   streamText,
+  experimental_createMCPClient,
 } from 'ai';
 import { auth, type UserType } from '@/app/(auth)/auth';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
@@ -148,6 +149,16 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
+    const flowSseClient = await experimental_createMCPClient({
+      transport: {
+        type: 'sse',
+        url: 'https://flow-mcp-production.up.railway.app/sse',
+      },
+    });
+    const flowTools = await flowSseClient.tools();
+
+    console.log('flowTools ---->', flowTools);
+
     const stream = createDataStream({
       execute: (dataStream) => {
         const result = streamText({
@@ -155,18 +166,20 @@ export async function POST(request: Request) {
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages,
           maxSteps: 5,
-          experimental_activeTools:
-            selectedChatModel === 'chat-model-reasoning'
-              ? []
-              : [
-                  'getWeather',
-                  'createDocument',
-                  'updateDocument',
-                  'requestSuggestions',
-                ],
+          // experimental_activeTools:
+          //   selectedChatModel === 'chat-model-reasoning'
+          //     ? []
+          //     : [
+          //         'getWeather',
+          //         'createDocument',
+          //         'updateDocument',
+          //         'requestSuggestions',
+          //         ...Object.keys(flowTools),
+          //       ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateUUID,
           tools: {
+            ...flowTools,
             getWeather,
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),
@@ -176,6 +189,7 @@ export async function POST(request: Request) {
             }),
           },
           onFinish: async ({ response }) => {
+            await flowSseClient.close();
             if (session.user?.id) {
               try {
                 const assistantId = getTrailingMessageId({
@@ -223,7 +237,9 @@ export async function POST(request: Request) {
           sendReasoning: true,
         });
       },
-      onError: () => {
+      onError: error => {
+        flowSseClient.close();
+        console.error('Error ---->', error);
         return 'Oops, an error occurred!';
       },
     });
