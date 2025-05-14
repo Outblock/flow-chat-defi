@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Summary Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+      <h1 class="text-2xl font-bold mb-4">
+        Account Summary Report for 0x84221fe0294044d7
+      </h1>
+
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Summary Statistics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-blue-100 p-4 rounded-lg">
+            <h3 class="text-lg font-medium">Total Transactions</h3>
+            <p class="text-2xl font-bold" id="totalTransactions">0</p>
+          </div>
+          <div class="bg-green-100 p-4 rounded-lg">
+            <h3 class="text-lg font-medium">Total Value</h3>
+            <p class="text-2xl font-bold" id="totalValue">$0</p>
+          </div>
+          <div class="bg-yellow-100 p-4 rounded-lg">
+            <h3 class="text-lg font-medium">Average Transaction Value</h3>
+            <p class="text-2xl font-bold" id="avgTransactionValue">$0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Transaction Distribution</h2>
+        <canvas id="transactionDistribution" class="w-full h-64"></canvas>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Transaction Trends</h2>
+        <canvas id="transactionTrends" class="w-full h-64"></canvas>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Conclusion</h2>
+        <p id="conclusion" class="text-gray-700 leading-relaxed"></p>
+      </div>
+    </div>
+
+    <script>
+      const reportData = {
+        totalTransactions: 150,
+        totalValue: 500000,
+        avgTransactionValue: 3333.33,
+        transactionDistribution: [
+          { category: "Category A", value: 50 },
+          { category: "Category B", value: 30 },
+          { category: "Category C", value: 20 },
+          { category: "Category D", value: 50 },
+        ],
+        transactionTrends: [
+          { date: "2023-01-01", value: 10000 },
+          { date: "2023-02-01", value: 15000 },
+          { date: "2023-03-01", value: 20000 },
+          { date: "2023-04-01", value: 25000 },
+          { date: "2023-05-01", value: 30000 },
+        ],
+      };
+
+      document.getElementById("totalTransactions").textContent =
+        reportData.totalTransactions;
+      document.getElementById("totalValue").textContent =
+        "$" + reportData.totalValue.toLocaleString();
+      document.getElementById("avgTransactionValue").textContent =
+        "$" + reportData.avgTransactionValue.toFixed(2);
+
+      // Transaction Distribution Bar Chart
+      new Chart(document.getElementById("transactionDistribution"), {
+        type: "bar",
+        data: {
+          labels: reportData.transactionDistribution.map((d) => d.category),
+          datasets: [
+            {
+              label: "Value",
+              data: reportData.transactionDistribution.map((d) => d.value),
+              backgroundColor: "#8884d8",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true },
+          },
+          scales: {
+            x: { title: { display: true, text: "Category" } },
+            y: { title: { display: true, text: "Value" } },
+          },
+        },
+      });
+
+      // Transaction Trends Line Chart
+      new Chart(document.getElementById("transactionTrends"), {
+        type: "line",
+        data: {
+          labels: reportData.transactionTrends.map((d) => d.date),
+          datasets: [
+            {
+              label: "Value",
+              data: reportData.transactionTrends.map((d) => d.value),
+              borderColor: "#8884d8",
+              backgroundColor: "rgba(136,132,216,0.2)",
+              fill: true,
+              tension: 0.4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true },
+          },
+          scales: {
+            x: { title: { display: true, text: "Date" } },
+            y: { title: { display: true, text: "Value" } },
+          },
+        },
+      });
+
+      document.getElementById("conclusion").textContent =
+        "The account 0x84221fe0294044d7 has shown a steady increase in transaction value over the past few months, with a diverse distribution across different categories. The average transaction value remains consistent, indicating stable activity.";
+    </script>
+  </body>
+</html>

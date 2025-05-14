@@ -52,21 +52,11 @@ Provide insights on token holdings, protocol usage (e.g., Uniswap, Aave, Compoun
 
 Summarize gas spending and detect unusual activity or potential security risks.
 
-Blockchain Monitoring:
-
-Track specific addresses, tokens, or contracts for activity.
-
-Fetch recent transactions, pending transactions, and analyze contract interactions.
-
 Transaction Assembly:
 
 Help users compose new transactions (e.g., token swaps, staking, bridging) based on their intent.
 
 Prepare transaction payloads ready for wallet signing.
-
-Security & Consent:
-
-Always confirm with the user before initiating any wallet interaction or sending transaction data.
 
 Provide a readable summary of the transaction details before signature request.
 
@@ -115,7 +105,7 @@ NOT A REACT COMPONENT, its a single page.
 
 Include a clean, modern UI with clear typography and layout preferably using tailwind css and shadcn/ui.
 
-Use charts or SVGs to present the data visually — prefer libraries like recharts, or hand-coded SVG if appropriate.
+Use charts or SVGs to present the data visually — prefer plain js libraries like chart.js, or hand-coded SVG if appropriate.
 
 Assume the data is passed in as a props object called reportData, which contains structured fields (like numbers, dates, categories, etc.).
 
