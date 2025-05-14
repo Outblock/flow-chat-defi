@@ -20,6 +20,7 @@ import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import { ToolResultExpandable } from './expnadable-result';
+import { TokenPieChart } from './charts/token-pie-charts';
 
 const PurePreviewMessage = ({
   chatId,
@@ -191,8 +192,6 @@ const PurePreviewMessage = ({
 
                 if (state === 'result') {
                   const { result } = toolInvocation;
-
-                  console.log('toolInvocation ---->', toolInvocation);
 
                   return (
                     <div key={toolCallId}>

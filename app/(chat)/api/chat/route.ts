@@ -155,9 +155,16 @@ export async function POST(request: Request) {
         url: 'https://flow-mcp-production.up.railway.app/sse',
       },
     });
-    const flowTools = await flowSseClient.tools();
 
-    console.log('flowTools ---->', flowTools);
+    const flowEVMClient = await experimental_createMCPClient({
+      transport: {
+        type: 'sse',
+        url: 'https://evm-mcp-server-production.up.railway.app/sse',
+      },
+    });
+
+    const flowTools = await flowSseClient.tools();
+    const flowEVMTools = await flowEVMClient.tools();
 
     const stream = createDataStream({
       execute: (dataStream) => {
@@ -180,6 +187,7 @@ export async function POST(request: Request) {
           experimental_generateMessageId: generateUUID,
           tools: {
             ...flowTools,
+            ...flowEVMTools,
             getWeather,
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),
