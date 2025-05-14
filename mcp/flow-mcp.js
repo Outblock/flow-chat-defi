@@ -6,7 +6,7 @@ import { z } from "zod";
 
 // src/utils/config.ts
 var networks = ["mainnet", "testnet"];
-var networkName = process.env.NETWORK || "testnet";
+var networkName = process.env.NETWORK || "mainnet";
 
 // src/tools/flowBalance/schema.ts
 var flowBalanceSchema = z.object({

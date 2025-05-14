@@ -62,6 +62,15 @@ function getStreamContext() {
   return globalStreamContext;
 }
 
+const flowClient = await createMCPClient({
+  transport: new StdioMCPTransport({
+    command: 'node',
+    args: ['mcp/flow-mcp.js'],
+  }),
+});
+
+const flowTools = await flowClient.tools();
+
 export async function POST(request: Request) {
   let requestBody: PostRequestBody;
 
@@ -150,14 +159,7 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    const flowClient = await createMCPClient({
-      transport: new StdioMCPTransport({
-        command: 'node',
-        args: ['mcp/flow-mcp.js'],
-      }),
-    });
-
-    const flowTools = await flowClient.tools();
+    console.log('API KEY ->', selectedChatModel, process.env.ANTHROPIC_API_KEY);
 
     const stream = createDataStream({
       execute: (dataStream) => {
@@ -210,8 +212,8 @@ export async function POST(request: Request) {
                     },
                   ],
                 });
-              } catch (_) {
-                console.error('Failed to save chat');
+              } catch (error) {
+                console.error('Failed to save chat', error);
               }
             }
           },

@@ -17,6 +17,9 @@ importers:
       '@ai-sdk/xai':
         specifier: ^1.2.15
         version: 1.2.15(zod@3.24.2)
+      '@babel/standalone':
+        specifier: ^7.27.2
+        version: 7.27.2
       '@codemirror/lang-javascript':
         specifier: ^6.2.2
         version: 6.2.3
@@ -367,6 +370,10 @@ packages:
 
   '@babel/runtime@7.27.1':
     resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/standalone@7.27.2':
+    resolution: {integrity: sha512-fO5toB6PVy7WFfAtXScY1xzwbTOgzxNw+eIiYpjPy9dNeTVscu59fX68JBz+iOZ/ZHsVBjQa4y7yent7eTDgXg==}
     engines: {node: '>=6.9.0'}
 
   '@biomejs/biome@1.9.4':
@@ -5305,6 +5312,8 @@ snapshots:
       preact-render-to-string: 5.2.3(preact@10.11.3)
 
   '@babel/runtime@7.27.1': {}
+
+  '@babel/standalone@7.27.2': {}
 
   '@biomejs/biome@1.9.4':
     optionalDependencies:

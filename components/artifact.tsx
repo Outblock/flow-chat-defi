@@ -28,6 +28,9 @@ import { textArtifact } from '@/artifacts/text/client';
 import equal from 'fast-deep-equal';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { VisibilityType } from './visibility-selector';
+import * as Babel from '@babel/standalone';
+import { ReactPreview } from './react-preview';
+import { XIcon } from 'lucide-react';
 
 export const artifactDefinitions = [
   textArtifact,
@@ -254,6 +257,14 @@ function PureArtifact({
     }
   }, [artifact.documentId, artifactDefinition, setMetadata]);
 
+  const [previewVisible, setPreviewVisible] = useState(true);
+
+  useEffect(() => {
+    if (metadata?.outputs && metadata.outputs.length > 0) {
+      setPreviewVisible(true);
+    }
+  }, [metadata?.outputs]);
+
   return (
     <AnimatePresence>
       {artifact.isVisible && (
@@ -470,6 +481,75 @@ function PureArtifact({
                 metadata={metadata}
                 setMetadata={setMetadata}
               />
+
+              {metadata?.outputs && metadata.outputs.length > 0 && (
+                <AnimatePresence
+                  onExitComplete={() => {
+                    setMetadata((meta: any) => ({ ...meta, outputs: [] }));
+                  }}
+                >
+                  {previewVisible && (
+                    <motion.div
+                      key="react-preview-overlay"
+                      initial={{ y: '100%', opacity: 1 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: '100%', opacity: 1 }}
+                      transition={{ duration: 0.5, ease: 'easeInOut' }}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(0,0,0,0.6)',
+                        zIndex: 10000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                      className="react-preview-overlay"
+                    >
+                      <div
+                        style={{
+                          position: 'relative',
+                          background: '#fff',
+                          width: '100%',
+                          height: '100%',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                        }}
+                      >
+                        <button
+                          onClick={() => setPreviewVisible(false)}
+                          style={{
+                            position: 'absolute',
+                            top: 12,
+                            right: 12,
+                            zIndex: 2,
+                            background: 'rgba(0,0,0,0.85)',
+                            border: 'none',
+                            borderRadius: '8px',
+                            width: 32,
+                            height: 32,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 20,
+                          }}
+                          aria-label="Close preview"
+                        >
+                          <XIcon size={16} />
+                        </button>
+                        <div style={{ flex: 1, width: '100%', height: '100%' }}>
+                          <ReactPreview code={metadata.outputs[0].contents[0].value} />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
 
               <AnimatePresence>
                 {isCurrentVersion && (
