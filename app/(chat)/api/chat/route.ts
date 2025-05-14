@@ -189,7 +189,7 @@ export async function POST(request: Request) {
             }),
           },
           onFinish: async ({ response }) => {
-            await flowSseClient.close();
+            // await flowSseClient.close();
             if (session.user?.id) {
               try {
                 const assistantId = getTrailingMessageId({
@@ -238,7 +238,7 @@ export async function POST(request: Request) {
         });
       },
       onError: error => {
-        flowSseClient.close();
+        // flowSseClient.close();
         console.error('Error ---->', error);
         return 'Oops, an error occurred!';
       },
