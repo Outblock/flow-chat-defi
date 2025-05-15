@@ -6,7 +6,7 @@ import { z } from "zod";
 
 // src/utils/config.ts
 var networks = ["mainnet", "testnet"];
-var networkName = process.env.NETWORK || "mainnet";
+var networkName = process.env.NETWORK || "testnet";
 
 // src/tools/flowBalance/schema.ts
 var flowBalanceSchema = z.object({
@@ -1328,6 +1328,1395 @@ var getTokenPriceHistoryTool = {
   }
 };
 
+// src/tools/swap/index.ts
+import { isAddress, encodeFunctionData } from "viem";
+import { z as z14 } from "zod";
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+import { z as z13 } from "zod";
+var JSONRPC_VERSION = "2.0";
+var ProgressTokenSchema = z13.union([z13.string(), z13.number().int()]);
+var CursorSchema = z13.string();
+var BaseRequestParamsSchema = z13.object({
+  _meta: z13.optional(z13.object({
+    /**
+     * If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+     */
+    progressToken: z13.optional(ProgressTokenSchema)
+  }).passthrough())
+}).passthrough();
+var RequestSchema = z13.object({
+  method: z13.string(),
+  params: z13.optional(BaseRequestParamsSchema)
+});
+var BaseNotificationParamsSchema = z13.object({
+  /**
+   * This parameter name is reserved by MCP to allow clients and servers to attach additional metadata to their notifications.
+   */
+  _meta: z13.optional(z13.object({}).passthrough())
+}).passthrough();
+var NotificationSchema = z13.object({
+  method: z13.string(),
+  params: z13.optional(BaseNotificationParamsSchema)
+});
+var ResultSchema = z13.object({
+  /**
+   * This result property is reserved by the protocol to allow clients and servers to attach additional metadata to their responses.
+   */
+  _meta: z13.optional(z13.object({}).passthrough())
+}).passthrough();
+var RequestIdSchema = z13.union([z13.string(), z13.number().int()]);
+var JSONRPCRequestSchema = z13.object({
+  jsonrpc: z13.literal(JSONRPC_VERSION),
+  id: RequestIdSchema
+}).merge(RequestSchema).strict();
+var JSONRPCNotificationSchema = z13.object({
+  jsonrpc: z13.literal(JSONRPC_VERSION)
+}).merge(NotificationSchema).strict();
+var JSONRPCResponseSchema = z13.object({
+  jsonrpc: z13.literal(JSONRPC_VERSION),
+  id: RequestIdSchema,
+  result: ResultSchema
+}).strict();
+var ErrorCode;
+(function(ErrorCode2) {
+  ErrorCode2[ErrorCode2["ConnectionClosed"] = -32e3] = "ConnectionClosed";
+  ErrorCode2[ErrorCode2["RequestTimeout"] = -32001] = "RequestTimeout";
+  ErrorCode2[ErrorCode2["ParseError"] = -32700] = "ParseError";
+  ErrorCode2[ErrorCode2["InvalidRequest"] = -32600] = "InvalidRequest";
+  ErrorCode2[ErrorCode2["MethodNotFound"] = -32601] = "MethodNotFound";
+  ErrorCode2[ErrorCode2["InvalidParams"] = -32602] = "InvalidParams";
+  ErrorCode2[ErrorCode2["InternalError"] = -32603] = "InternalError";
+})(ErrorCode || (ErrorCode = {}));
+var JSONRPCErrorSchema = z13.object({
+  jsonrpc: z13.literal(JSONRPC_VERSION),
+  id: RequestIdSchema,
+  error: z13.object({
+    /**
+     * The error type that occurred.
+     */
+    code: z13.number().int(),
+    /**
+     * A short description of the error. The message SHOULD be limited to a concise single sentence.
+     */
+    message: z13.string(),
+    /**
+     * Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
+     */
+    data: z13.optional(z13.unknown())
+  })
+}).strict();
+var JSONRPCMessageSchema = z13.union([
+  JSONRPCRequestSchema,
+  JSONRPCNotificationSchema,
+  JSONRPCResponseSchema,
+  JSONRPCErrorSchema
+]);
+var EmptyResultSchema = ResultSchema.strict();
+var CancelledNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/cancelled"),
+  params: BaseNotificationParamsSchema.extend({
+    /**
+     * The ID of the request to cancel.
+     *
+     * This MUST correspond to the ID of a request previously issued in the same direction.
+     */
+    requestId: RequestIdSchema,
+    /**
+     * An optional string describing the reason for the cancellation. This MAY be logged or presented to the user.
+     */
+    reason: z13.string().optional()
+  })
+});
+var ImplementationSchema = z13.object({
+  name: z13.string(),
+  version: z13.string()
+}).passthrough();
+var ClientCapabilitiesSchema = z13.object({
+  /**
+   * Experimental, non-standard capabilities that the client supports.
+   */
+  experimental: z13.optional(z13.object({}).passthrough()),
+  /**
+   * Present if the client supports sampling from an LLM.
+   */
+  sampling: z13.optional(z13.object({}).passthrough()),
+  /**
+   * Present if the client supports listing roots.
+   */
+  roots: z13.optional(z13.object({
+    /**
+     * Whether the client supports issuing notifications for changes to the roots list.
+     */
+    listChanged: z13.optional(z13.boolean())
+  }).passthrough())
+}).passthrough();
+var InitializeRequestSchema = RequestSchema.extend({
+  method: z13.literal("initialize"),
+  params: BaseRequestParamsSchema.extend({
+    /**
+     * The latest version of the Model Context Protocol that the client supports. The client MAY decide to support older versions as well.
+     */
+    protocolVersion: z13.string(),
+    capabilities: ClientCapabilitiesSchema,
+    clientInfo: ImplementationSchema
+  })
+});
+var ServerCapabilitiesSchema = z13.object({
+  /**
+   * Experimental, non-standard capabilities that the server supports.
+   */
+  experimental: z13.optional(z13.object({}).passthrough()),
+  /**
+   * Present if the server supports sending log messages to the client.
+   */
+  logging: z13.optional(z13.object({}).passthrough()),
+  /**
+   * Present if the server supports sending completions to the client.
+   */
+  completions: z13.optional(z13.object({}).passthrough()),
+  /**
+   * Present if the server offers any prompt templates.
+   */
+  prompts: z13.optional(z13.object({
+    /**
+     * Whether this server supports issuing notifications for changes to the prompt list.
+     */
+    listChanged: z13.optional(z13.boolean())
+  }).passthrough()),
+  /**
+   * Present if the server offers any resources to read.
+   */
+  resources: z13.optional(z13.object({
+    /**
+     * Whether this server supports clients subscribing to resource updates.
+     */
+    subscribe: z13.optional(z13.boolean()),
+    /**
+     * Whether this server supports issuing notifications for changes to the resource list.
+     */
+    listChanged: z13.optional(z13.boolean())
+  }).passthrough()),
+  /**
+   * Present if the server offers any tools to call.
+   */
+  tools: z13.optional(z13.object({
+    /**
+     * Whether this server supports issuing notifications for changes to the tool list.
+     */
+    listChanged: z13.optional(z13.boolean())
+  }).passthrough())
+}).passthrough();
+var InitializeResultSchema = ResultSchema.extend({
+  /**
+   * The version of the Model Context Protocol that the server wants to use. This may not match the version that the client requested. If the client cannot support this version, it MUST disconnect.
+   */
+  protocolVersion: z13.string(),
+  capabilities: ServerCapabilitiesSchema,
+  serverInfo: ImplementationSchema,
+  /**
+   * Instructions describing how to use the server and its features.
+   *
+   * This can be used by clients to improve the LLM's understanding of available tools, resources, etc. It can be thought of like a "hint" to the model. For example, this information MAY be added to the system prompt.
+   */
+  instructions: z13.optional(z13.string())
+});
+var InitializedNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/initialized")
+});
+var PingRequestSchema = RequestSchema.extend({
+  method: z13.literal("ping")
+});
+var ProgressSchema = z13.object({
+  /**
+   * The progress thus far. This should increase every time progress is made, even if the total is unknown.
+   */
+  progress: z13.number(),
+  /**
+   * Total number of items to process (or total progress required), if known.
+   */
+  total: z13.optional(z13.number())
+}).passthrough();
+var ProgressNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/progress"),
+  params: BaseNotificationParamsSchema.merge(ProgressSchema).extend({
+    /**
+     * The progress token which was given in the initial request, used to associate this notification with the request that is proceeding.
+     */
+    progressToken: ProgressTokenSchema
+  })
+});
+var PaginatedRequestSchema = RequestSchema.extend({
+  params: BaseRequestParamsSchema.extend({
+    /**
+     * An opaque token representing the current pagination position.
+     * If provided, the server should return results starting after this cursor.
+     */
+    cursor: z13.optional(CursorSchema)
+  }).optional()
+});
+var PaginatedResultSchema = ResultSchema.extend({
+  /**
+   * An opaque token representing the pagination position after the last returned result.
+   * If present, there may be more results available.
+   */
+  nextCursor: z13.optional(CursorSchema)
+});
+var ResourceContentsSchema = z13.object({
+  /**
+   * The URI of this resource.
+   */
+  uri: z13.string(),
+  /**
+   * The MIME type of this resource, if known.
+   */
+  mimeType: z13.optional(z13.string())
+}).passthrough();
+var TextResourceContentsSchema = ResourceContentsSchema.extend({
+  /**
+   * The text of the item. This must only be set if the item can actually be represented as text (not binary data).
+   */
+  text: z13.string()
+});
+var BlobResourceContentsSchema = ResourceContentsSchema.extend({
+  /**
+   * A base64-encoded string representing the binary data of the item.
+   */
+  blob: z13.string().base64()
+});
+var ResourceSchema = z13.object({
+  /**
+   * The URI of this resource.
+   */
+  uri: z13.string(),
+  /**
+   * A human-readable name for this resource.
+   *
+   * This can be used by clients to populate UI elements.
+   */
+  name: z13.string(),
+  /**
+   * A description of what this resource represents.
+   *
+   * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
+   */
+  description: z13.optional(z13.string()),
+  /**
+   * The MIME type of this resource, if known.
+   */
+  mimeType: z13.optional(z13.string())
+}).passthrough();
+var ResourceTemplateSchema = z13.object({
+  /**
+   * A URI template (according to RFC 6570) that can be used to construct resource URIs.
+   */
+  uriTemplate: z13.string(),
+  /**
+   * A human-readable name for the type of resource this template refers to.
+   *
+   * This can be used by clients to populate UI elements.
+   */
+  name: z13.string(),
+  /**
+   * A description of what this template is for.
+   *
+   * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
+   */
+  description: z13.optional(z13.string()),
+  /**
+   * The MIME type for all resources that match this template. This should only be included if all resources matching this template have the same type.
+   */
+  mimeType: z13.optional(z13.string())
+}).passthrough();
+var ListResourcesRequestSchema = PaginatedRequestSchema.extend({
+  method: z13.literal("resources/list")
+});
+var ListResourcesResultSchema = PaginatedResultSchema.extend({
+  resources: z13.array(ResourceSchema)
+});
+var ListResourceTemplatesRequestSchema = PaginatedRequestSchema.extend({
+  method: z13.literal("resources/templates/list")
+});
+var ListResourceTemplatesResultSchema = PaginatedResultSchema.extend({
+  resourceTemplates: z13.array(ResourceTemplateSchema)
+});
+var ReadResourceRequestSchema = RequestSchema.extend({
+  method: z13.literal("resources/read"),
+  params: BaseRequestParamsSchema.extend({
+    /**
+     * The URI of the resource to read. The URI can use any protocol; it is up to the server how to interpret it.
+     */
+    uri: z13.string()
+  })
+});
+var ReadResourceResultSchema = ResultSchema.extend({
+  contents: z13.array(z13.union([TextResourceContentsSchema, BlobResourceContentsSchema]))
+});
+var ResourceListChangedNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/resources/list_changed")
+});
+var SubscribeRequestSchema = RequestSchema.extend({
+  method: z13.literal("resources/subscribe"),
+  params: BaseRequestParamsSchema.extend({
+    /**
+     * The URI of the resource to subscribe to. The URI can use any protocol; it is up to the server how to interpret it.
+     */
+    uri: z13.string()
+  })
+});
+var UnsubscribeRequestSchema = RequestSchema.extend({
+  method: z13.literal("resources/unsubscribe"),
+  params: BaseRequestParamsSchema.extend({
+    /**
+     * The URI of the resource to unsubscribe from.
+     */
+    uri: z13.string()
+  })
+});
+var ResourceUpdatedNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/resources/updated"),
+  params: BaseNotificationParamsSchema.extend({
+    /**
+     * The URI of the resource that has been updated. This might be a sub-resource of the one that the client actually subscribed to.
+     */
+    uri: z13.string()
+  })
+});
+var PromptArgumentSchema = z13.object({
+  /**
+   * The name of the argument.
+   */
+  name: z13.string(),
+  /**
+   * A human-readable description of the argument.
+   */
+  description: z13.optional(z13.string()),
+  /**
+   * Whether this argument must be provided.
+   */
+  required: z13.optional(z13.boolean())
+}).passthrough();
+var PromptSchema = z13.object({
+  /**
+   * The name of the prompt or prompt template.
+   */
+  name: z13.string(),
+  /**
+   * An optional description of what this prompt provides
+   */
+  description: z13.optional(z13.string()),
+  /**
+   * A list of arguments to use for templating the prompt.
+   */
+  arguments: z13.optional(z13.array(PromptArgumentSchema))
+}).passthrough();
+var ListPromptsRequestSchema = PaginatedRequestSchema.extend({
+  method: z13.literal("prompts/list")
+});
+var ListPromptsResultSchema = PaginatedResultSchema.extend({
+  prompts: z13.array(PromptSchema)
+});
+var GetPromptRequestSchema = RequestSchema.extend({
+  method: z13.literal("prompts/get"),
+  params: BaseRequestParamsSchema.extend({
+    /**
+     * The name of the prompt or prompt template.
+     */
+    name: z13.string(),
+    /**
+     * Arguments to use for templating the prompt.
+     */
+    arguments: z13.optional(z13.record(z13.string()))
+  })
+});
+var TextContentSchema = z13.object({
+  type: z13.literal("text"),
+  /**
+   * The text content of the message.
+   */
+  text: z13.string()
+}).passthrough();
+var ImageContentSchema = z13.object({
+  type: z13.literal("image"),
+  /**
+   * The base64-encoded image data.
+   */
+  data: z13.string().base64(),
+  /**
+   * The MIME type of the image. Different providers may support different image types.
+   */
+  mimeType: z13.string()
+}).passthrough();
+var AudioContentSchema = z13.object({
+  type: z13.literal("audio"),
+  /**
+   * The base64-encoded audio data.
+   */
+  data: z13.string().base64(),
+  /**
+   * The MIME type of the audio. Different providers may support different audio types.
+   */
+  mimeType: z13.string()
+}).passthrough();
+var EmbeddedResourceSchema = z13.object({
+  type: z13.literal("resource"),
+  resource: z13.union([TextResourceContentsSchema, BlobResourceContentsSchema])
+}).passthrough();
+var PromptMessageSchema = z13.object({
+  role: z13.enum(["user", "assistant"]),
+  content: z13.union([
+    TextContentSchema,
+    ImageContentSchema,
+    AudioContentSchema,
+    EmbeddedResourceSchema
+  ])
+}).passthrough();
+var GetPromptResultSchema = ResultSchema.extend({
+  /**
+   * An optional description for the prompt.
+   */
+  description: z13.optional(z13.string()),
+  messages: z13.array(PromptMessageSchema)
+});
+var PromptListChangedNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/prompts/list_changed")
+});
+var ToolSchema = z13.object({
+  /**
+   * The name of the tool.
+   */
+  name: z13.string(),
+  /**
+   * A human-readable description of the tool.
+   */
+  description: z13.optional(z13.string()),
+  /**
+   * A JSON Schema object defining the expected parameters for the tool.
+   */
+  inputSchema: z13.object({
+    type: z13.literal("object"),
+    properties: z13.optional(z13.object({}).passthrough())
+  }).passthrough()
+}).passthrough();
+var ListToolsRequestSchema = PaginatedRequestSchema.extend({
+  method: z13.literal("tools/list")
+});
+var ListToolsResultSchema = PaginatedResultSchema.extend({
+  tools: z13.array(ToolSchema)
+});
+var CallToolResultSchema = ResultSchema.extend({
+  content: z13.array(z13.union([TextContentSchema, ImageContentSchema, AudioContentSchema, EmbeddedResourceSchema])),
+  isError: z13.boolean().default(false).optional()
+});
+var CompatibilityCallToolResultSchema = CallToolResultSchema.or(ResultSchema.extend({
+  toolResult: z13.unknown()
+}));
+var CallToolRequestSchema = RequestSchema.extend({
+  method: z13.literal("tools/call"),
+  params: BaseRequestParamsSchema.extend({
+    name: z13.string(),
+    arguments: z13.optional(z13.record(z13.unknown()))
+  })
+});
+var ToolListChangedNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/tools/list_changed")
+});
+var LoggingLevelSchema = z13.enum([
+  "debug",
+  "info",
+  "notice",
+  "warning",
+  "error",
+  "critical",
+  "alert",
+  "emergency"
+]);
+var SetLevelRequestSchema = RequestSchema.extend({
+  method: z13.literal("logging/setLevel"),
+  params: BaseRequestParamsSchema.extend({
+    /**
+     * The level of logging that the client wants to receive from the server. The server should send all logs at this level and higher (i.e., more severe) to the client as notifications/logging/message.
+     */
+    level: LoggingLevelSchema
+  })
+});
+var LoggingMessageNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/message"),
+  params: BaseNotificationParamsSchema.extend({
+    /**
+     * The severity of this log message.
+     */
+    level: LoggingLevelSchema,
+    /**
+     * An optional name of the logger issuing this message.
+     */
+    logger: z13.optional(z13.string()),
+    /**
+     * The data to be logged, such as a string message or an object. Any JSON serializable type is allowed here.
+     */
+    data: z13.unknown()
+  })
+});
+var ModelHintSchema = z13.object({
+  /**
+   * A hint for a model name.
+   */
+  name: z13.string().optional()
+}).passthrough();
+var ModelPreferencesSchema = z13.object({
+  /**
+   * Optional hints to use for model selection.
+   */
+  hints: z13.optional(z13.array(ModelHintSchema)),
+  /**
+   * How much to prioritize cost when selecting a model.
+   */
+  costPriority: z13.optional(z13.number().min(0).max(1)),
+  /**
+   * How much to prioritize sampling speed (latency) when selecting a model.
+   */
+  speedPriority: z13.optional(z13.number().min(0).max(1)),
+  /**
+   * How much to prioritize intelligence and capabilities when selecting a model.
+   */
+  intelligencePriority: z13.optional(z13.number().min(0).max(1))
+}).passthrough();
+var SamplingMessageSchema = z13.object({
+  role: z13.enum(["user", "assistant"]),
+  content: z13.union([TextContentSchema, ImageContentSchema, AudioContentSchema])
+}).passthrough();
+var CreateMessageRequestSchema = RequestSchema.extend({
+  method: z13.literal("sampling/createMessage"),
+  params: BaseRequestParamsSchema.extend({
+    messages: z13.array(SamplingMessageSchema),
+    /**
+     * An optional system prompt the server wants to use for sampling. The client MAY modify or omit this prompt.
+     */
+    systemPrompt: z13.optional(z13.string()),
+    /**
+     * A request to include context from one or more MCP servers (including the caller), to be attached to the prompt. The client MAY ignore this request.
+     */
+    includeContext: z13.optional(z13.enum(["none", "thisServer", "allServers"])),
+    temperature: z13.optional(z13.number()),
+    /**
+     * The maximum number of tokens to sample, as requested by the server. The client MAY choose to sample fewer tokens than requested.
+     */
+    maxTokens: z13.number().int(),
+    stopSequences: z13.optional(z13.array(z13.string())),
+    /**
+     * Optional metadata to pass through to the LLM provider. The format of this metadata is provider-specific.
+     */
+    metadata: z13.optional(z13.object({}).passthrough()),
+    /**
+     * The server's preferences for which model to select.
+     */
+    modelPreferences: z13.optional(ModelPreferencesSchema)
+  })
+});
+var CreateMessageResultSchema = ResultSchema.extend({
+  /**
+   * The name of the model that generated the message.
+   */
+  model: z13.string(),
+  /**
+   * The reason why sampling stopped.
+   */
+  stopReason: z13.optional(z13.enum(["endTurn", "stopSequence", "maxTokens"]).or(z13.string())),
+  role: z13.enum(["user", "assistant"]),
+  content: z13.discriminatedUnion("type", [
+    TextContentSchema,
+    ImageContentSchema,
+    AudioContentSchema
+  ])
+});
+var ResourceReferenceSchema = z13.object({
+  type: z13.literal("ref/resource"),
+  /**
+   * The URI or URI template of the resource.
+   */
+  uri: z13.string()
+}).passthrough();
+var PromptReferenceSchema = z13.object({
+  type: z13.literal("ref/prompt"),
+  /**
+   * The name of the prompt or prompt template
+   */
+  name: z13.string()
+}).passthrough();
+var CompleteRequestSchema = RequestSchema.extend({
+  method: z13.literal("completion/complete"),
+  params: BaseRequestParamsSchema.extend({
+    ref: z13.union([PromptReferenceSchema, ResourceReferenceSchema]),
+    /**
+     * The argument's information
+     */
+    argument: z13.object({
+      /**
+       * The name of the argument
+       */
+      name: z13.string(),
+      /**
+       * The value of the argument to use for completion matching.
+       */
+      value: z13.string()
+    }).passthrough()
+  })
+});
+var CompleteResultSchema = ResultSchema.extend({
+  completion: z13.object({
+    /**
+     * An array of completion values. Must not exceed 100 items.
+     */
+    values: z13.array(z13.string()).max(100),
+    /**
+     * The total number of completion options available. This can exceed the number of values actually sent in the response.
+     */
+    total: z13.optional(z13.number().int()),
+    /**
+     * Indicates whether there are additional completion options beyond those provided in the current response, even if the exact total is unknown.
+     */
+    hasMore: z13.optional(z13.boolean())
+  }).passthrough()
+});
+var RootSchema = z13.object({
+  /**
+   * The URI identifying the root. This *must* start with file:// for now.
+   */
+  uri: z13.string().startsWith("file://"),
+  /**
+   * An optional name for the root.
+   */
+  name: z13.optional(z13.string())
+}).passthrough();
+var ListRootsRequestSchema = RequestSchema.extend({
+  method: z13.literal("roots/list")
+});
+var ListRootsResultSchema = ResultSchema.extend({
+  roots: z13.array(RootSchema)
+});
+var RootsListChangedNotificationSchema = NotificationSchema.extend({
+  method: z13.literal("notifications/roots/list_changed")
+});
+var ClientRequestSchema = z13.union([
+  PingRequestSchema,
+  InitializeRequestSchema,
+  CompleteRequestSchema,
+  SetLevelRequestSchema,
+  GetPromptRequestSchema,
+  ListPromptsRequestSchema,
+  ListResourcesRequestSchema,
+  ListResourceTemplatesRequestSchema,
+  ReadResourceRequestSchema,
+  SubscribeRequestSchema,
+  UnsubscribeRequestSchema,
+  CallToolRequestSchema,
+  ListToolsRequestSchema
+]);
+var ClientNotificationSchema = z13.union([
+  CancelledNotificationSchema,
+  ProgressNotificationSchema,
+  InitializedNotificationSchema,
+  RootsListChangedNotificationSchema
+]);
+var ClientResultSchema = z13.union([
+  EmptyResultSchema,
+  CreateMessageResultSchema,
+  ListRootsResultSchema
+]);
+var ServerRequestSchema = z13.union([
+  PingRequestSchema,
+  CreateMessageRequestSchema,
+  ListRootsRequestSchema
+]);
+var ServerNotificationSchema = z13.union([
+  CancelledNotificationSchema,
+  ProgressNotificationSchema,
+  LoggingMessageNotificationSchema,
+  ResourceUpdatedNotificationSchema,
+  ResourceListChangedNotificationSchema,
+  ToolListChangedNotificationSchema,
+  PromptListChangedNotificationSchema
+]);
+var ServerResultSchema = z13.union([
+  EmptyResultSchema,
+  InitializeResultSchema,
+  CompleteResultSchema,
+  GetPromptResultSchema,
+  ListPromptsResultSchema,
+  ListResourcesResultSchema,
+  ListResourceTemplatesResultSchema,
+  ReadResourceResultSchema,
+  CallToolResultSchema,
+  ListToolsResultSchema
+]);
+
+// src/types/tools.ts
+var ToolInputSchema = ToolSchema.shape.inputSchema;
+function createTextResponse(text) {
+  return {
+    content: [{
+      type: "text",
+      text
+    }]
+  };
+}
+
+// src/utils/evm/viem.ts
+import { createPublicClient, http } from "viem";
+var networks2 = {
+  monadTestnet: {
+    id: 747,
+    name: "Flow EVM mainnet",
+    nativeCurrency: { name: "Flow token", symbol: "FLOW", decimals: 18 },
+    rpcUrls: {
+      default: { http: ["https://mainnet.evm.nodes.onflow.org"] }
+    }
+  }
+};
+function getPublicClient(networkName2 = "monadTestnet") {
+  const network = networks2[networkName2];
+  if (!network) {
+    throw new Error(`Network ${networkName2} not found in configuration`);
+  }
+  return createPublicClient({
+    chain: network,
+    transport: http(network.rpcUrls.default.http[0])
+  });
+}
+
+// src/utils/evm/supportedErc20Tokens.ts
+var ERC20_TOKENS = {
+  "Wrapped Flow": {
+    contractAddress: "0xd3bF53DAC106A0290B0483EcBC89d40FcC961f3e",
+    symbol: "WFLOW",
+    name: "Wrapped Flow",
+    decimals: 18
+  },
+  "Trump": {
+    contractAddress: "0xd3378b419feae4e3a4bb4f3349dba43a1b511760",
+    symbol: "TRUMP",
+    name: "OFFICIAL TRUMP",
+    decimals: 18
+  },
+  "HotCocoa": {
+    contractAddress: "0x6A64E027E3F6A94AcBDCf39CF0cBb4BeaD5f5ecb",
+    symbol: "HotCocoa",
+    name: "HotCocoa",
+    decimals: 18
+  },
+  "Gwendolion": {
+    contractAddress: "0xf45CBE30bD953590C9917799142Edb05Be3F293F",
+    symbol: "Gwendolion",
+    name: "Gwendolion",
+    decimals: 18
+  },
+  "Pawderick": {
+    contractAddress: "0x10448481630fb6d20B597e5B3d7e42DCb1247C8A",
+    symbol: "Pawderick",
+    name: "Pawderick",
+    decimals: 18
+  },
+  "Catseye": {
+    contractAddress: "0x9b565507858812e8B5FfbFBDE9B200A3bc2e8F76",
+    symbol: "Catseye",
+    name: "Catseye",
+    decimals: 18
+  }
+};
+
+// src/tools/swap/index.ts
+var UniswapV2FactoryABI = [
+  {
+    inputs: [
+      { name: "tokenA", type: "address" },
+      { name: "tokenB", type: "address" }
+    ],
+    name: "getPair",
+    outputs: [{ name: "pair", type: "address" }],
+    stateMutability: "view",
+    type: "function"
+  }
+];
+var UniswapV2PairABI = [
+  {
+    inputs: [],
+    name: "getReserves",
+    outputs: [
+      { name: "reserve0", type: "uint112" },
+      { name: "reserve1", type: "uint112" },
+      { name: "blockTimestampLast", type: "uint32" }
+    ],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [],
+    name: "token0",
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [],
+    name: "token1",
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function"
+  }
+];
+var UNISWAP_V2_FACTORY_ADDRESS = "0x29372c22459a4e373851798bFd6808e71EA34A71";
+var quoteSchema = z14.object({
+  tokenIn: z14.string().refine((input) => {
+    return Object.entries(ERC20_TOKENS).some(
+      ([key, token]) => key === input || token.symbol === input || token.name === input || token.contractAddress === input
+    );
+  }, {
+    message: "Invalid tokenIn. Please provide a valid token name, symbol, or contract address",
+    path: ["tokenIn"]
+  }).describe("The input token (name, symbol, or contract address)"),
+  tokenOut: z14.string().refine((input) => {
+    return Object.entries(ERC20_TOKENS).some(
+      ([key, token]) => key === input || token.symbol === input || token.name === input || token.contractAddress === input
+    );
+  }, {
+    message: "Invalid tokenOut. Please provide a valid token name, symbol, or contract address",
+    path: ["tokenOut"]
+  }).describe("The output token (name, symbol, or contract address)"),
+  amountIn: z14.string().describe("The amount of input tokens to swap")
+});
+var swapSchema = z14.object({
+  tokenIn: z14.string().refine((input) => {
+    if (input === "MON") return true;
+    return Object.entries(ERC20_TOKENS).some(
+      ([key, token]) => key === input || token.symbol === input || token.name === input || token.contractAddress === input
+    );
+  }, {
+    message: "Invalid tokenIn. Please provide a valid token name, symbol, or contract address",
+    path: ["tokenIn"]
+  }).describe("The input token (name, symbol, or contract address)"),
+  tokenOut: z14.string().refine((input) => {
+    if (input === "MON") return true;
+    return Object.entries(ERC20_TOKENS).some(
+      ([key, token]) => key === input || token.symbol === input || token.name === input || token.contractAddress === input
+    );
+  }, {
+    message: "Invalid tokenOut. Please provide a valid token name, symbol, or contract address",
+    path: ["tokenOut"]
+  }).describe("The output token (name, symbol, or contract address)"),
+  amountIn: z14.string().describe("The amount of input tokens to swap"),
+  slippageTolerance: z14.number().min(0.1).max(50).default(2).describe("Slippage tolerance in percentage (default: 2%)"),
+  allNadsAccount: z14.string().refine((addr) => isAddress(addr), {
+    message: "Invalid allnads account address format",
+    path: ["allNadsAccount"]
+  }).describe("The allnads account that will execute the swap"),
+  deadline: z14.number().default(Math.floor(Date.now() / 1e3) + 60 * 20).describe("Transaction deadline in seconds (default: 20 minutes from now)")
+});
+function formatTokenAmount(amount, decimals) {
+  if (amount === 0n) return "0";
+  const amountStr = amount.toString();
+  if (amountStr.length <= decimals) {
+    const paddedAmount = amountStr.padStart(decimals + 1, "0");
+    const integerPart = paddedAmount.slice(0, -decimals) || "0";
+    const fractionalPart = paddedAmount.slice(-decimals).replace(/0+$/, "");
+    return fractionalPart ? `${integerPart}.${fractionalPart}` : integerPart;
+  } else {
+    const integerPart = amountStr.slice(0, amountStr.length - decimals);
+    const fractionalPart = amountStr.slice(amountStr.length - decimals).replace(/0+$/, "");
+    return fractionalPart ? `${integerPart}.${fractionalPart}` : integerPart;
+  }
+}
+function getAmountOut(amountIn, reserveIn, reserveOut) {
+  if (amountIn === 0n) return 0n;
+  if (reserveIn === 0n || reserveOut === 0n) return 0n;
+  const amountInWithFee = amountIn * 997n;
+  const numerator = amountInWithFee * reserveOut;
+  const denominator = reserveIn * 1000n + amountInWithFee;
+  return numerator / denominator;
+}
+var punchswapQuoteTool = {
+  name: "punchswap_quote",
+  description: `
+  Get a price quote from Punchswap V2 for swapping between two tokens.
+  Supported tokens: Wrapped Monad(WMON), Moyaki(YAKI), Chog(CHOG), Molandak(DAK), USDT, USDC, WBTC.
+  You can specify tokens by name, symbol, or contract address.
+  The tool will check if a liquidity pair exists and return the current exchange rate.`,
+  inputSchema: quoteSchema,
+  handler: async (params) => {
+    try {
+      const { tokenIn, tokenOut, amountIn } = params;
+      const publicClient = getPublicClient();
+      let tokenInInfo;
+      for (const [key, info] of Object.entries(ERC20_TOKENS)) {
+        if (key === tokenIn || info.symbol === tokenIn || info.name === tokenIn || info.contractAddress === tokenIn) {
+          tokenInInfo = info;
+          break;
+        }
+      }
+      if (!tokenInInfo) {
+        return createTextResponse("Invalid input token");
+      }
+      let tokenOutInfo;
+      if (tokenOut === "MON") {
+        tokenOutInfo = {
+          symbol: "MON",
+          name: "Monad",
+          decimals: 18
+        };
+      } else {
+        for (const [key, info] of Object.entries(ERC20_TOKENS)) {
+          if (key === tokenOut || info.symbol === tokenOut || info.name === tokenOut || info.contractAddress === tokenOut) {
+            tokenOutInfo = info;
+            break;
+          }
+        }
+      }
+      if (!tokenOutInfo) {
+        return createTextResponse("Invalid output token");
+      }
+      const amountInParsed = parseFloat(amountIn);
+      if (isNaN(amountInParsed)) {
+        return createTextResponse("Invalid amount");
+      }
+      const amountInWei = BigInt(Math.floor(amountInParsed * 10 ** tokenInInfo.decimals));
+      const isETHIn = tokenIn === "FLOW";
+      const isETHOut = tokenOut === "FLOW";
+      const WMON_ADDRESS = ERC20_TOKENS["Wrapped Flow"].contractAddress;
+      const tokenInAddressForPair = isETHIn ? WMON_ADDRESS : tokenInInfo.contractAddress;
+      const tokenOutAddressForPair = isETHOut ? WMON_ADDRESS : tokenOutInfo.contractAddress;
+      const pairAddress = await publicClient.readContract({
+        address: UNISWAP_V2_FACTORY_ADDRESS,
+        abi: UniswapV2FactoryABI,
+        functionName: "getPair",
+        args: [tokenInAddressForPair, tokenOutAddressForPair]
+      });
+      if (pairAddress === "0x0000000000000000000000000000000000000000") {
+        return createTextResponse(`No liquidity pair found for ${tokenInInfo.symbol} and ${tokenOutInfo.symbol}`);
+      }
+      const token0 = await publicClient.readContract({
+        address: pairAddress,
+        abi: UniswapV2PairABI,
+        functionName: "token0"
+      });
+      const [reserve0, reserve1] = await publicClient.readContract({
+        address: pairAddress,
+        abi: UniswapV2PairABI,
+        functionName: "getReserves"
+      });
+      const isToken0 = tokenInAddressForPair.toLowerCase() === token0.toLowerCase();
+      const reserveIn = isToken0 ? reserve0 : reserve1;
+      const reserveOut = isToken0 ? reserve1 : reserve0;
+      const amountOut = getAmountOut(amountInWei, reserveIn, reserveOut);
+      const formattedAmountOut = formatTokenAmount(amountOut, tokenOutInfo.decimals);
+      const exchangeRate = Number(amountOut) / Number(amountInWei) * 10 ** (tokenInInfo.decimals - tokenOutInfo.decimals);
+      const priceImpact = calculatePriceImpact(amountInWei, reserveIn);
+      const result = {
+        tokenIn: {
+          symbol: tokenInInfo.symbol,
+          name: tokenInInfo.name,
+          address: tokenInInfo.contractAddress,
+          amount: amountIn
+        },
+        tokenOut: {
+          symbol: tokenOutInfo.symbol,
+          name: tokenOutInfo.name,
+          address: tokenOutInfo.contractAddress,
+          amount: formattedAmountOut
+        },
+        exchangeRate: `1 ${tokenInInfo.symbol} = ${exchangeRate.toFixed(6)} ${tokenOutInfo.symbol}`,
+        swapDetails: {
+          pairAddress,
+          reserveIn: reserveIn.toString(),
+          reserveOut: reserveOut.toString(),
+          priceImpact
+        }
+      };
+      return createTextResponse(JSON.stringify(result, null, 2));
+    } catch (error) {
+      return createTextResponse(`Error getting Punchswap quote: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+};
+function calculatePriceImpact(amountIn, reserveIn) {
+  if (reserveIn === 0n) return "Unknown";
+  const impact = Number(amountIn * 10000n / reserveIn) / 100;
+  if (impact < 0.1) return "Very Low (<0.1%)";
+  if (impact < 0.5) return "Low (0.1-0.5%)";
+  if (impact < 1) return "Medium (0.5-1.0%)";
+  if (impact < 3) return "High (1.0-3.0%)";
+  return `Very High (${impact.toFixed(2)}%)`;
+}
+var UniswapV2RouterABI = [
+  {
+    inputs: [
+      { name: "amountIn", type: "uint256" },
+      { name: "amountOutMin", type: "uint256" },
+      { name: "path", type: "address[]" },
+      { name: "to", type: "address" },
+      { name: "deadline", type: "uint256" }
+    ],
+    name: "swapExactTokensForTokens",
+    outputs: [{ name: "amounts", type: "uint256[]" }],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [
+      { name: "amountIn", type: "uint256" },
+      { name: "amountOutMin", type: "uint256" },
+      { name: "path", type: "address[]" },
+      { name: "to", type: "address" },
+      { name: "deadline", type: "uint256" }
+    ],
+    name: "swapExactTokensForETH",
+    outputs: [{ name: "amounts", type: "uint256[]" }],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [
+      { name: "amountOutMin", type: "uint256" },
+      { name: "path", type: "address[]" },
+      { name: "to", type: "address" },
+      { name: "deadline", type: "uint256" }
+    ],
+    name: "swapExactETHForTokens",
+    outputs: [{ name: "amounts", type: "uint256[]" }],
+    stateMutability: "payable",
+    type: "function"
+  }
+];
+var ERC20ApproveABI = [
+  {
+    inputs: [
+      { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" }
+    ],
+    name: "approve",
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "nonpayable",
+    type: "function"
+  }
+];
+var UNISWAP_V2_ROUTER_ADDRESS = "0xfb8e1c3b833f9e67a71c859a132cf783b645e436";
+var ERC20AllowanceABI = [
+  {
+    inputs: [
+      { name: "owner", type: "address" },
+      { name: "spender", type: "address" }
+    ],
+    name: "allowance",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function"
+  }
+];
+var MAX_ALLOWANCE = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn;
+var punchswapSwapTool = {
+  name: "punchswap_swap",
+  description: `
+  Create a transaction to swap tokens on Punchswap V2.
+  Supported tokens: Monad(MON, the native token), Wrapped Monad(WMON), Moyaki(YAKI), Chog(CHOG), Molandak(DAK), USDT, USDC, WBTC.
+  You can specify tokens by name, symbol, or contract address.
+  The tool will check if a liquidity pair exists and create the appropriate transaction.
+  If approval is needed, it will return the approval transaction first.`,
+  inputSchema: swapSchema,
+  handler: async (params) => {
+    try {
+      const { allNadsAccount, tokenIn, tokenOut, amountIn, slippageTolerance, deadline } = params;
+      const publicClient = getPublicClient();
+      let tokenInInfo;
+      if (tokenIn === "MON") {
+        tokenInInfo = {
+          symbol: "MON",
+          name: "Monad",
+          decimals: 18
+        };
+      } else {
+        for (const [key, info] of Object.entries(ERC20_TOKENS)) {
+          if (key === tokenIn || info.symbol === tokenIn || info.name === tokenIn || info.contractAddress === tokenIn) {
+            tokenInInfo = info;
+            break;
+          }
+        }
+      }
+      if (!tokenInInfo) {
+        return createTextResponse("Invalid input token");
+      }
+      let tokenOutInfo;
+      if (tokenOut === "MON") {
+        tokenOutInfo = {
+          symbol: "MON",
+          name: "Monad",
+          decimals: 18
+        };
+      } else {
+        for (const [key, info] of Object.entries(ERC20_TOKENS)) {
+          if (key === tokenOut || info.symbol === tokenOut || info.name === tokenOut || info.contractAddress === tokenOut) {
+            tokenOutInfo = info;
+            break;
+          }
+        }
+      }
+      if (!tokenOutInfo) {
+        return createTextResponse("Invalid output token");
+      }
+      const amountInParsed = parseFloat(amountIn);
+      if (isNaN(amountInParsed)) {
+        return createTextResponse("Invalid amount");
+      }
+      const amountInWei = BigInt(Math.floor(amountInParsed * 10 ** tokenInInfo.decimals));
+      const isETHIn = tokenIn === "FLOW";
+      const isETHOut = tokenOut === "FLOW";
+      const WFLOW_ADDRESS = ERC20_TOKENS["Wrapped Flow"].contractAddress;
+      const tokenInAddressForPair = isETHIn ? WFLOW_ADDRESS : tokenInInfo.contractAddress;
+      const tokenOutAddressForPair = isETHOut ? WFLOW_ADDRESS : tokenOutInfo.contractAddress;
+      const pairAddress = await publicClient.readContract({
+        address: UNISWAP_V2_FACTORY_ADDRESS,
+        abi: UniswapV2FactoryABI,
+        functionName: "getPair",
+        args: [tokenInAddressForPair, tokenOutAddressForPair]
+      });
+      if (pairAddress === "0x0000000000000000000000000000000000000000") {
+        return createTextResponse(`No liquidity pair found for ${tokenInInfo.symbol} and ${tokenOutInfo.symbol}`);
+      }
+      const token0 = await publicClient.readContract({
+        address: pairAddress,
+        abi: UniswapV2PairABI,
+        functionName: "token0"
+      });
+      const [reserve0, reserve1] = await publicClient.readContract({
+        address: pairAddress,
+        abi: UniswapV2PairABI,
+        functionName: "getReserves"
+      });
+      const isToken0 = tokenInAddressForPair.toLowerCase() === token0.toLowerCase();
+      const reserveIn = isToken0 ? reserve0 : reserve1;
+      const reserveOut = isToken0 ? reserve1 : reserve0;
+      const amountOut = getAmountOut(amountInWei, reserveIn, reserveOut);
+      const slippageFactor = 1000n - BigInt(Math.floor(slippageTolerance * 10));
+      const amountOutMin = amountOut * slippageFactor / 1000n;
+      const path = [tokenInAddressForPair, tokenOutAddressForPair];
+      if (isETHIn) {
+        const swapData = encodeFunctionData({
+          abi: UniswapV2RouterABI,
+          functionName: "swapExactETHForTokens",
+          args: [
+            amountOutMin,
+            path,
+            allNadsAccount,
+            BigInt(deadline)
+          ]
+        });
+        const transactionRequest = {
+          to: UNISWAP_V2_ROUTER_ADDRESS,
+          data: swapData,
+          value: "0"
+        };
+        return createTextResponse(
+          `<<TransactionRequest>>
+${JSON.stringify(transactionRequest, null, 2)}`
+        );
+      }
+      try {
+        const currentAllowance = await publicClient.readContract({
+          address: tokenInAddressForPair,
+          abi: ERC20AllowanceABI,
+          functionName: "allowance",
+          args: [allNadsAccount, UNISWAP_V2_ROUTER_ADDRESS]
+        });
+        if (currentAllowance < amountInWei) {
+          const approveData = encodeFunctionData({
+            abi: ERC20ApproveABI,
+            functionName: "approve",
+            args: [UNISWAP_V2_ROUTER_ADDRESS, MAX_ALLOWANCE]
+          });
+          const approveTransaction = {
+            to: tokenInAddressForPair,
+            data: approveData,
+            value: "0"
+          };
+          return createTextResponse(
+            `<<TransactionRequest>>
+${JSON.stringify(approveTransaction, null, 2)}
+
+`
+          );
+        }
+      } catch (error) {
+        return createTextResponse(`Error checking token allowance: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      if (isETHOut) {
+        const swapData = encodeFunctionData({
+          abi: UniswapV2RouterABI,
+          functionName: "swapExactTokensForETH",
+          args: [
+            amountInWei,
+            amountOutMin,
+            path,
+            allNadsAccount,
+            BigInt(deadline)
+          ]
+        });
+        const swapTransaction = {
+          to: UNISWAP_V2_ROUTER_ADDRESS,
+          data: swapData,
+          value: "0"
+        };
+        return createTextResponse(
+          `<<TransactionRequest>>
+${JSON.stringify(swapTransaction, null, 2)}`
+        );
+      } else {
+        const swapData = encodeFunctionData({
+          abi: UniswapV2RouterABI,
+          functionName: "swapExactTokensForTokens",
+          args: [
+            amountInWei,
+            amountOutMin,
+            path,
+            allNadsAccount,
+            BigInt(deadline)
+          ]
+        });
+        const swapTransaction = {
+          to: UNISWAP_V2_ROUTER_ADDRESS,
+          data: swapData,
+          value: "0"
+        };
+        return createTextResponse(
+          `<<TransactionRequest>>
+${JSON.stringify(swapTransaction, null, 2)}`
+        );
+      }
+    } catch (error) {
+      return createTextResponse(`Error creating swap transaction: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+};
+
+// src/tools/erc20/index.ts
+import { isAddress as isAddress2, encodeFunctionData as encodeFunctionData2, erc20Abi } from "viem";
+import { z as z15 } from "zod";
+function formatTokenBalance(balance, decimals) {
+  if (balance === 0n) return "0";
+  const balanceStr = balance.toString();
+  if (balanceStr.length <= decimals) {
+    const paddedBalance = balanceStr.padStart(decimals + 1, "0");
+    const integerPart = paddedBalance.slice(0, -decimals) || "0";
+    const fractionalPart = paddedBalance.slice(-decimals).replace(/0+$/, "");
+    return fractionalPart ? `${integerPart}.${fractionalPart}` : integerPart;
+  } else {
+    const integerPart = balanceStr.slice(0, balanceStr.length - decimals);
+    const fractionalPart = balanceStr.slice(balanceStr.length - decimals).replace(/0+$/, "");
+    return fractionalPart ? `${integerPart}.${fractionalPart}` : integerPart;
+  }
+}
+var getErc20TokenSchema = z15.object({
+  address: z15.string().refine((addr) => isAddress2(addr), {
+    message: "Invalid address format",
+    path: ["address"]
+  }).describe("The address to get the erc20 tokens for")
+});
+var getErc20TokensTool = {
+  name: "get_erc20_tokens",
+  description: `
+  Get all erc20 tokens for an address, the information includes the token name, symbol, contract address, decimals and balance.
+  Only Wrapped Flow(WFLOW), Trump(TRUMP), HotCocoa, Gwendolion, Pawderick, Catseye are supported.
+  Note: MON is not ERC20 token, you should use evm_tool to get the balance of MON`,
+  inputSchema: getErc20TokenSchema,
+  handler: async (params) => {
+    try {
+      const { address } = params;
+      const publicClient = getPublicClient();
+      const tokenResults = await Promise.all(
+        Object.entries(ERC20_TOKENS).map(async ([name, tokenInfo]) => {
+          try {
+            const balance = await publicClient.readContract({
+              address: tokenInfo.contractAddress,
+              abi: [
+                {
+                  name: "balanceOf",
+                  type: "function",
+                  inputs: [{ name: "owner", type: "address" }],
+                  outputs: [{ name: "balance", type: "uint256" }],
+                  stateMutability: "view"
+                }
+              ],
+              functionName: "balanceOf",
+              args: [address]
+            });
+            const formattedBalance = formatTokenBalance(balance, tokenInfo.decimals);
+            return {
+              ...tokenInfo,
+              name,
+              rawBalance: balance.toString(),
+              balance: formattedBalance
+            };
+          } catch (error) {
+            console.error(`Error fetching balance for ${name}:`, error);
+            return {
+              ...tokenInfo,
+              name,
+              rawBalance: "0",
+              balance: "0",
+              error: error instanceof Error ? error.message : String(error)
+            };
+          }
+        })
+      );
+      return createTextResponse(JSON.stringify(tokenResults, null, 2));
+    } catch (error) {
+      return createTextResponse(`Error fetching ERC20 tokens: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+};
+var transferErc20TokenTool = {
+  name: "transfer_erc20_token",
+  description: "Transfer an erc20 token to an address. You can query the address book to get the recipient address.",
+  inputSchema: z15.object({
+    token: z15.string().refine((input) => {
+      return Object.entries(ERC20_TOKENS).some(
+        ([key, token]) => key === input || token.symbol === input || token.name === input || token.contractAddress === input
+      );
+    }, {
+      message: "Invalid token. Please provide a valid token name, symbol, or contract address",
+      path: ["token"]
+    }).describe("The token to send (name, symbol, or contract address)"),
+    to: z15.string().refine((addr) => isAddress2(addr), {
+      message: "Invalid address format",
+      path: ["to"]
+    }).describe("The address to send the token to"),
+    amount: z15.string().describe("The amount of tokens to send")
+  }),
+  handler: async (params) => {
+    try {
+      const { token, to, amount } = params;
+      let tokenInfo;
+      for (const [key, info] of Object.entries(ERC20_TOKENS)) {
+        if (key === token || info.symbol === token || info.name === token || info.contractAddress === token) {
+          tokenInfo = info;
+          break;
+        }
+      }
+      if (!tokenInfo) {
+        return createTextResponse("Invalid token");
+      }
+      const transactionRequest = {
+        to: tokenInfo.contractAddress,
+        data: encodeFunctionData2({
+          abi: erc20Abi,
+          functionName: "transfer",
+          args: [to, BigInt(amount)]
+        })
+      };
+      return createTextResponse(`<<TransactionRequest>>
+${JSON.stringify(transactionRequest, null, 2)}`);
+    } catch (error) {
+      return createTextResponse(`Error sending erc20 token: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+};
+
 // src/tools/index.ts
 var createTools = () => {
   return [
@@ -1342,12 +2731,16 @@ var createTools = () => {
     getTrendingPoolsTool,
     getPoolsByTokenTool,
     getTokenInfoTool,
-    getTokenPriceHistoryTool
+    getTokenPriceHistoryTool,
+    punchswapQuoteTool,
+    punchswapSwapTool,
+    getErc20TokensTool,
+    transferErc20TokenTool
   ];
 };
 
 // src/prompts/index.ts
-import { z as z13 } from "zod";
+import { z as z16 } from "zod";
 
 // src/prompts/flow/index.ts
 var getFlowBalancePrompt = {
@@ -1436,15 +2829,15 @@ var getTokenBalancePrompt = {
 };
 
 // src/prompts/index.ts
-var promptSchema = z13.object({
-  name: z13.string().min(1, "Name is required"),
-  description: z13.string().optional(),
-  arguments: z13.array(z13.object({
-    name: z13.string(),
-    description: z13.string().optional(),
-    required: z13.boolean().optional()
+var promptSchema = z16.object({
+  name: z16.string().min(1, "Name is required"),
+  description: z16.string().optional(),
+  arguments: z16.array(z16.object({
+    name: z16.string(),
+    description: z16.string().optional(),
+    required: z16.boolean().optional()
   })).optional(),
-  handler: z13.function().args(z13.any()).returns(z13.any())
+  handler: z16.function().args(z16.any()).returns(z16.any())
 });
 var createPrompts = () => {
   return [
@@ -1517,4 +2910,3 @@ var index_default = server;
 export {
   index_default as default
 };
-//# sourceMappingURL=index.js.map
