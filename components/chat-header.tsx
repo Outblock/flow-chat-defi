@@ -71,7 +71,14 @@ function PureChatHeader({
           className="order-1 md:order-3"
         />
       )}
-        <ConnectButton showBalance={true} />
+        
+        <div
+        className="md:flex py-1.5 px-2 h-fit md:h-[45px] order-4 md:ml-auto"
+        asChild
+        >
+          <ConnectButton showBalance={true} />
+        </div>
+
     </header>
   );
 }
