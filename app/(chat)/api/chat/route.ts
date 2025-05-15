@@ -65,7 +65,7 @@ function getStreamContext() {
 const flowClient = await createMCPClient({
   transport: new StdioMCPTransport({
     command: 'node',
-    args: ['mcp/flow-mcp.js'],
+    args: ['./mcp/flow-mcp.js'],
   }),
 });
 
@@ -158,8 +158,6 @@ export async function POST(request: Request) {
 
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
-
-    console.log('API KEY ->', selectedChatModel, process.env.ANTHROPIC_API_KEY);
 
     const stream = createDataStream({
       execute: (dataStream) => {
