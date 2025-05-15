@@ -72,10 +72,7 @@ function PureChatHeader({
         />
       )}
         
-        <div
-        className="md:flex py-1.5 px-2 h-fit md:h-[45px] order-4 md:ml-auto"
-        asChild
-        >
+        <div className="md:flex py-1.5 px-2 h-fit md:h-[45px] order-4 md:ml-auto">
           <ConnectButton showBalance={true} />
         </div>
 
