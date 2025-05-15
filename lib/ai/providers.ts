@@ -4,6 +4,7 @@ import {
   wrapLanguageModel,
 } from 'ai';
 import { xai } from '@ai-sdk/xai';
+import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { isTestEnvironment } from '../constants';
 import {
@@ -31,6 +32,16 @@ const xAIModel = {
   }),
   'title-model': xai('grok-2-1212'),
   'artifact-model': xai('grok-2-1212'),
+}
+
+const openaiModel = {
+  'chat-model': openai('gpt-4o'),
+  'chat-model-reasoning': wrapLanguageModel({
+    model: openai('gpt-4o'),
+    middleware: extractReasoningMiddleware({ tagName: 'think' }),
+  }),
+  'title-model': openai('gpt-4o'),
+  'artifact-model': openai('gpt-4o'),
 }
 
 export const myProvider = isTestEnvironment
