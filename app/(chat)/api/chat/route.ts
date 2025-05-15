@@ -69,15 +69,6 @@ function getStreamContext() {
 //   }),
 // });
 
-const flowClient = await createMCPClient({
-  transport: {
-    type: 'sse',
-    url: 'https://flow-mcp-production.up.railway.app/sse',
-  },
-});
-
-const flowTools = await flowClient.tools();
-
 export async function POST(request: Request) {
   let requestBody: PostRequestBody;
 
@@ -165,6 +156,15 @@ export async function POST(request: Request) {
 
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
+
+    const flowClient = await createMCPClient({
+      transport: {
+        type: 'sse',
+        url: 'https://flow-mcp-production.up.railway.app/sse',
+      },
+    });
+
+    const flowTools = await flowClient.tools();
 
     const stream = createDataStream({
       execute: (dataStream) => {
