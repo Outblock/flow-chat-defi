@@ -78,7 +78,7 @@ export function AiProviderSelector({
                 startTransition(() => {
                   setOptimisticProviderId(id);
                   saveAiProviderAsCookie(id);
-                  window.location.reload(); // 刷新页面以应用新的 provider
+                  window.location.reload();
                 });
               }}
             >
