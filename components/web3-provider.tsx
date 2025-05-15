@@ -34,7 +34,7 @@ const flowWallet = ({ projectId }: MyWalletOptions): Wallet => ({
     qrCode: 'https://link.lilico.app',
   },
   mobile: {
-    getUri: (uri: string) => `https://fcw-link.lilico.app/wc?uri=${encodeURIComponent(uri)}`,
+    getUri: (uri: string) => `frw://wc?uri=${encodeURIComponent(uri)}`,
   },
   qrCode: {
     getUri: (uri: string) => uri,
@@ -79,12 +79,10 @@ const flowWallet = ({ projectId }: MyWalletOptions): Wallet => ({
   createConnector: getWalletConnectConnector({ projectId }),
 });
 
-
 /*
 We can leave this as is for the tutorial but it should be
 replaced with your own project ID for production use.
 */
-
 
 const connectors = connectorsForWallets(
   [
@@ -94,18 +92,17 @@ const connectors = connectorsForWallets(
     },
   ],
   {
-    appName: 'RainbowKit App',
+    appName: 'Flow AI Chatbot App',
     projectId,
   }
 );
 
 const config = createConfig({
   connectors,
-  chains: [flowMainnet, mainnet],
+  chains: [flowMainnet],
   ssr: true,
   transports: {
     [flowMainnet.id]: http(),
-    [mainnet.id]: http(),
   },
 });
 
