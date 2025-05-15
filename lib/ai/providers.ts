@@ -33,18 +33,51 @@ const xAIModel = {
   'artifact-model': xai('grok-2-1212'),
 }
 
-export const myProvider = isTestEnvironment
-  ? customProvider({
+export type AIProviderType = 'claude' | 'xai';
+
+function getProviderConfig(providerId: AIProviderType) {
+  if (isTestEnvironment) {
+    return customProvider({
       languageModels: {
         'chat-model': chatModel,
         'chat-model-reasoning': reasoningModel,
         'title-model': titleModel,
         'artifact-model': artifactModel,
       },
-    })
-  : customProvider({
-      languageModels: claudeModel,
-      imageModels: {
-        'small-model': xai.image('grok-2-image'),
-      },
     });
+  }
+
+  switch (providerId) {
+    case 'xai':
+      return customProvider({
+        languageModels: xAIModel,
+        imageModels: {
+          'small-model': xai.image('grok-2-image'),
+        },
+      });
+    case 'claude':
+    default:
+      return customProvider({
+        languageModels: claudeModel,
+        imageModels: {
+          'small-model': xai.image('grok-2-image'),
+        },
+      });
+  }
+}
+
+// Get provider from cookie or default to 'claude'
+function getCurrentProvider(): AIProviderType {
+  if (typeof window === 'undefined') return 'claude';
+  return (document.cookie.match(/ai-provider=([^;]+)/)?.[1] || 'claude') as AIProviderType;
+}
+
+// Create a proxy to handle provider updates
+const providerHandler = {
+  get(target: any, prop: string) {
+    const currentProvider = getProviderConfig(getCurrentProvider());
+    return currentProvider[prop];
+  }
+};
+
+export const myProvider = new Proxy({}, providerHandler);

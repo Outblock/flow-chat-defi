@@ -19,6 +19,7 @@ import type { Session } from 'next-auth';
 import { useSearchParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { useAutoResume } from '@/hooks/use-auto-resume';
+import type { AIProviderType } from '@/lib/ai/providers';
 
 export function Chat({
   id,
@@ -28,6 +29,7 @@ export function Chat({
   isReadonly,
   session,
   autoResume,
+  selectedProviderId = 'claude',
 }: {
   id: string;
   initialMessages: Array<UIMessage>;
@@ -36,6 +38,7 @@ export function Chat({
   isReadonly: boolean;
   session: Session;
   autoResume: boolean;
+  selectedProviderId?: AIProviderType;
 }) {
   const { mutate } = useSWRConfig();
 
@@ -118,6 +121,7 @@ export function Chat({
         <ChatHeader
           chatId={id}
           selectedModelId={initialChatModel}
+          selectedProviderId={selectedProviderId}
           selectedVisibilityType={initialVisibilityType}
           isReadonly={isReadonly}
           session={session}
