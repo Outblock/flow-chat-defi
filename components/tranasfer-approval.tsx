@@ -64,7 +64,9 @@ export function TransferApproval(transactionObject: any) {
   // Report txHash to listener context
   useEffect(() => {
     if (hash) {
-      addTxHash(hash);
+      addTxHash(hash, 
+        'I have successfully transferred ' + decodedAmount + ' ' + tokenInfo.symbol + ' to ' + to + '.\n\nMy transaction hash is ' + hash + '.'
+      );
     }
   }, [hash, addTxHash]);
 
@@ -119,7 +121,7 @@ export function TransferApproval(transactionObject: any) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-6">
+    <div className="flex flex-col max-w-lg items-center justify-center p-6">
       <Card className="w-full border border-neutral-800">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
@@ -127,7 +129,7 @@ export function TransferApproval(transactionObject: any) {
           </CardTitle>
           <Separator className="bg-neutral-500 w-full h-px" />
         </CardHeader>
-        <CardContent className="space-y-3 pb-1">
+        <CardContent className="space-y-3 pb-4">
           <AnimatePresence mode="wait">
             {hash ? (
               <motion.div
@@ -140,20 +142,30 @@ export function TransferApproval(transactionObject: any) {
               >
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative flex items-center justify-center size-12">
-                    <div className="absolute inset-0 animate-spin rounded-full border-y-2 border-green-500" />
+                    {isConfirmed ? (
+                      <div className="absolute inset-0 rounded-full border-2 border-green-500 flex items-center justify-center">
+                        <svg className="size-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 animate-spin rounded-full border-y-2 border-green-500" />
+                    )}
                     <Avatar className="absolute inset-0 m-auto">
                       <AvatarImage src={tokenInfo.logo} className="size-10" />
                       <AvatarFallback>{tokenInfo.symbol}</AvatarFallback>
                     </Avatar>
                   </div>
-                  <span className="text-lg font-semibold text-neutral-100 mt-2">Waiting for transaction complete...</span>
+                  <span className="text-lg font-semibold text-neutral-100 mt-2">
+                    {isConfirmed ? 'Transaction completed!' : 'Waiting for transaction complete...'}
+                  </span>
                   <a
                     href={`https://evm.flowscan.io/tx/${hash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-400 font-mono text-xs mt-2 hover:underline"
                   >
-                    {hash}
+                    {hash.slice(0, 10)}...{hash.slice(-10)}
                   </a>
                 </div>
               </motion.div>
@@ -164,6 +176,7 @@ export function TransferApproval(transactionObject: any) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.35, ease: 'easeInOut' }}
+                className="flex flex-col gap-3"
               >
                 <div className="flex items-center gap-4 p-4 bg-neutral-900 rounded-lg">
                   <div className="flex items-center gap-2">
@@ -231,17 +244,19 @@ export function TransferApproval(transactionObject: any) {
                   </div>
                 </div>
 
-                <span className="text-sm text-neutral-300">Amount</span>
-                <div className="flex flex-col gap-1 p-3 bg-neutral-900 rounded-lg">
-                  <span className="text-neutral-100 font-mono text-sm text-end">
-                    {decodedAmount}
-                  </span>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm text-neutral-300">Amount</span>
+                  <div className="flex flex-col gap-1 p-3 bg-neutral-900 rounded-lg">
+                    <span className="text-neutral-100 font-mono text-sm text-end">
+                      {decodedAmount}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex flex-col">
                   <Accordion type="single" collapsible>
                     <AccordionItem value="calldata">
-                      <AccordionTrigger className="font-sm text-neutral-300 hover:text-neutral-100">
+                      <AccordionTrigger className="text-sm text-neutral-300 hover:text-neutral-100">
                         Calldata
                       </AccordionTrigger>
                       <AccordionContent>
@@ -256,6 +271,7 @@ export function TransferApproval(transactionObject: any) {
             )}
           </AnimatePresence>
         </CardContent>
+        {!hash && (
         <CardFooter>
           <Button
             onClick={handleTransfer}
@@ -265,6 +281,7 @@ export function TransferApproval(transactionObject: any) {
             {isLoading ? 'Processing...' : 'Approve Transfer'}
           </Button>
         </CardFooter>
+        )}
       </Card>
     </div>
   );

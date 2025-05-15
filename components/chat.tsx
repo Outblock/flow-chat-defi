@@ -112,9 +112,13 @@ export function Chat({
     data,
     setMessages,
   });
+  
+  const handleTransactionConfirmed = (hash: `0x${string}`, message?: string) => {
+    append({ role: 'user', content: message || `Transaction confirmed: ${hash}` });
+  };
 
   return (
-    <TransactionListenerProvider onConfirmed={(hash) => append({ role: 'user', content: `Transaction confirmed: ${hash}` })}>
+    <TransactionListenerProvider onConfirmed={handleTransactionConfirmed}>
       <div className="flex flex-col min-w-0 h-dvh bg-background">
         <ChatHeader
           chatId={id}
