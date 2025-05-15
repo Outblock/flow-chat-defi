@@ -65,7 +65,7 @@ export function TransferApproval(transactionObject: any) {
   useEffect(() => {
     if (hash) {
       addTxHash(hash, 
-        'I have successfully transferred ' + decodedAmount + ' ' + tokenInfo.symbol + ' to ' + to + '.\n\nMy transaction hash is ' + hash + '.'
+        'I have successfully transferred ' + decodedAmount + ' ' + tokenInfo.symbol + ' to ' + to + '.\n\nMy transaction hash is ' + hash + '.' + '\n\n' + 'Check my new balance of ' + tokenInfo.symbol
       );
     }
   }, [hash, addTxHash]);
