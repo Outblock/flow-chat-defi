@@ -29,7 +29,6 @@ import { textArtifact } from '@/artifacts/text/client';
 import equal from 'fast-deep-equal';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { VisibilityType } from './visibility-selector';
-import * as Babel from '@babel/standalone';
 import { ReactPreview } from './react-preview';
 import { XIcon } from 'lucide-react';
 
@@ -282,32 +281,6 @@ function PureArtifact({
       const isFullHtml = /^\s*<!DOCTYPE html>|<html[\s>]/i.test(content);
       if (isFullHtml) {
         outputCode = content;
-      } else {
-        const transpiled = Babel.transform(content, {
-          presets: ['react', 'env'],
-        }).code || '';
-        outputCode = `
-          <!DOCTYPE html>
-          <html lang="en">
-            <head>
-              <meta charset="UTF-8" />
-              <title>React Preview</title>
-              <style>body { margin: 0; padding: 0; }</style>
-              <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-              <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-            </head>
-            <body>
-              <div id="root"></div>
-              <script>
-                try {
-                  ${transpiled}
-                } catch (err) {
-                  document.body.innerHTML = '<pre style=\"color:red;\">' + err + '</pre>';
-                }
-              </script>
-            </body>
-          </html>
-        `;
       }
       setMetadata((metadata: any) => ({
         ...metadata,

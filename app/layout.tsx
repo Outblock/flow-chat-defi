@@ -2,7 +2,7 @@ import { Toaster } from 'sonner';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
-
+import { Web3Provider } from '@/components/web3-provider';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
 
@@ -10,10 +10,6 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://chat.vercel.ai'),
   title: 'Next.js Chatbot Template',
   description: 'Next.js chatbot template using the AI SDK.',
-};
-
-export const viewport = {
-  maximumScale: 1, // Disable auto-zoom on mobile Safari
 };
 
 const geist = Geist({
@@ -48,6 +44,10 @@ const THEME_COLOR_SCRIPT = `\
   updateThemeColor();
 })();`;
 
+export const viewport = {
+  maximumScale: 1, // Disable auto-zoom on mobile Safari
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -56,10 +56,6 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      // `next-themes` injects an extra classname to the body element to avoid
-      // visual flicker before hydration. Hence the `suppressHydrationWarning`
-      // prop is necessary to avoid the React hydration mismatch warning.
-      // https://github.com/pacocoursey/next-themes?tab=readme-ov-file#with-app
       suppressHydrationWarning
       className={`${geist.variable} ${geistMono.variable}`}
     >
@@ -78,7 +74,11 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <Toaster position="top-center" />
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <Web3Provider>
+              {children}
+            </Web3Provider>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
