@@ -62,11 +62,18 @@ function getStreamContext() {
   return globalStreamContext;
 }
 
+// const flowClient = await createMCPClient({
+//   transport: new StdioMCPTransport({
+//     command: 'node',
+//     args: ['./mcp/flow-mcp.js'],
+//   }),
+// });
+
 const flowClient = await createMCPClient({
-  transport: new StdioMCPTransport({
-    command: 'node',
-    args: ['./mcp/flow-mcp.js'],
-  }),
+  transport: {
+    type: 'sse',
+    url: 'https://flow-mcp-production.up.railway.app/sse',
+  },
 });
 
 const flowTools = await flowClient.tools();
