@@ -8,6 +8,7 @@ import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import type { DBMessage } from '@/lib/db/schema';
 import type { Attachment, UIMessage } from 'ai';
+import type { AIProviderType } from '@/lib/ai/providers';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -53,6 +54,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   const cookieStore = await cookies();
   const chatModelFromCookie = cookieStore.get('chat-model');
+  const providerIdFromCookie = cookieStore.get('ai-provider');
 
   if (!chatModelFromCookie) {
     return (
@@ -65,6 +67,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           isReadonly={session?.user?.id !== chat.userId}
           session={session}
           autoResume={true}
+          selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude-3-7-sonnet'}
         />
         <DataStreamHandler id={id} />
       </>
@@ -81,6 +84,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         isReadonly={session?.user?.id !== chat.userId}
         session={session}
         autoResume={true}
+        selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude-3-7-sonnet'}
       />
       <DataStreamHandler id={id} />
     </>

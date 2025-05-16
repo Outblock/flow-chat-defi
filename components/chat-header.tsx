@@ -14,16 +14,20 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { type VisibilityType, VisibilitySelector } from './visibility-selector';
 import type { Session } from 'next-auth';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { AiProviderSelector } from './ai-provider-selector';
+import type { AIProviderType } from '@/lib/ai/providers';
 
 function PureChatHeader({
   chatId,
   selectedModelId,
+  selectedProviderId,
   selectedVisibilityType,
   isReadonly,
   session,
 }: {
   chatId: string;
   selectedModelId: string;
+  selectedProviderId: AIProviderType;
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
   session: Session;
@@ -57,10 +61,17 @@ function PureChatHeader({
       )}
 
       {!isReadonly && (
+        <AiProviderSelector
+          selectedProviderId={selectedProviderId}
+          className="order-1 md:order-2"
+        />
+      )}
+
+      {!isReadonly && (
         <ModelSelector
           session={session}
           selectedModelId={selectedModelId}
-          className="order-1 md:order-2"
+          className="order-1 md:order-3"
         />
       )}
 
@@ -68,18 +79,21 @@ function PureChatHeader({
         <VisibilitySelector
           chatId={chatId}
           selectedVisibilityType={selectedVisibilityType}
-          className="order-1 md:order-3"
+          className="order-1 md:order-4"
         />
       )}
         
-        <div className="md:flex py-1.5 px-2 h-fit md:h-[45px] order-4 md:ml-auto">
-          <ConnectButton showBalance={true} />
-        </div>
+      <div className="md:flex py-1.5 px-2 h-fit md:h-[45px] order-5 md:ml-auto">
+        <ConnectButton showBalance={true} />
+      </div>
 
     </header>
   );
 }
 
 export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
-  return prevProps.selectedModelId === nextProps.selectedModelId;
+  return (
+    prevProps.selectedModelId === nextProps.selectedModelId &&
+    prevProps.selectedProviderId === nextProps.selectedProviderId
+  );
 });

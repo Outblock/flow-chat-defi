@@ -6,6 +6,7 @@ import { generateUUID } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { auth } from '../(auth)/auth';
 import { redirect } from 'next/navigation';
+import type { AIProviderType } from '@/lib/ai/providers';
 
 export default async function Page() {
   const session = await auth();
@@ -18,6 +19,7 @@ export default async function Page() {
 
   const cookieStore = await cookies();
   const modelIdFromCookie = cookieStore.get('chat-model');
+  const providerIdFromCookie = cookieStore.get('ai-provider');
 
   if (!modelIdFromCookie) {
     return (
@@ -31,6 +33,7 @@ export default async function Page() {
           isReadonly={false}
           session={session}
           autoResume={false}
+          selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude-3-7-sonnet'}
         />
         <DataStreamHandler id={id} />
       </>
@@ -48,6 +51,7 @@ export default async function Page() {
         isReadonly={false}
         session={session}
         autoResume={false}
+        selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude-3-7-sonnet'}
       />
       <DataStreamHandler id={id} />
     </>
