@@ -277,17 +277,12 @@ function PureArtifact({
       hasAutoRun.current = true;
 
       const content = artifact.content;
-      let outputCode = '';
-      const isFullHtml = /^\s*<!DOCTYPE html>|<html[\s>]/i.test(content);
-      if (isFullHtml) {
-        outputCode = content;
-      }
       setMetadata((metadata: any) => ({
         ...metadata,
         outputs: [
           {
             id: 'preview',
-            contents: [{ type: 'text', value: outputCode }],
+            contents: [{ type: 'text', value: content }],
             status: 'completed',
           },
         ],

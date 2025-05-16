@@ -19,6 +19,7 @@ import type { Session } from 'next-auth';
 import { useSearchParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { useAutoResume } from '@/hooks/use-auto-resume';
+import { TransactionListenerProvider } from '@/hooks/use-transaction-listener';
 
 export function Chat({
   id,
@@ -111,9 +112,13 @@ export function Chat({
     data,
     setMessages,
   });
+  
+  const handleTransactionConfirmed = (hash: `0x${string}`, message?: string) => {
+    append({ role: 'user', content: message || `Transaction confirmed: ${hash}` });
+  };
 
   return (
-    <>
+    <TransactionListenerProvider onConfirmed={handleTransactionConfirmed}>
       <div className="flex flex-col min-w-0 h-dvh bg-background">
         <ChatHeader
           chatId={id}
@@ -171,6 +176,6 @@ export function Chat({
         isReadonly={isReadonly}
         selectedVisibilityType={visibilityType}
       />
-    </>
+    </TransactionListenerProvider>
   );
 }

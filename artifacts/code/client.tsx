@@ -91,7 +91,7 @@ export const codeArtifact = new Artifact<'code', Metadata>({
                       ${transpiled}
                     } catch (err) {
                       document.body.innerHTML = '<pre style=\"color:red;\">' + err + '</pre>';
-                    }
+              }
                   </script>
                 </body>
               </html>

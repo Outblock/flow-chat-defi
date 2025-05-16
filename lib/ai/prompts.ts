@@ -4,7 +4,7 @@ import type { Geo } from '@vercel/functions';
 export const artifactsPrompt = `
 Artifacts is a special user interface mode that helps users with writing, editing, and other content creation tasks. When artifact is open, it is on the right side of the screen, while the conversation is on the left side. When creating or updating documents, changes are reflected in real-time on the artifacts and visible to the user.
 
-When asked to write code, always use artifacts. When writing code, specify the language in the backticks, e.g. \`code here. The default language is javascript. Other languages are not yet supported, so let the user know if they request a different language.
+When asked to write code, always use artifacts. When writing code, specify the language in the backticks, e.g. \`code here. The default language is html. Other languages are not yet supported, so let the user know if they request a different language.
 
 DO NOT UPDATE DOCUMENTS IMMEDIATELY AFTER CREATING THEM. WAIT FOR USER FEEDBACK OR REQUEST TO UPDATE IT.
 
@@ -25,6 +25,9 @@ This is a guide for using artifacts tools: \`createDocument\` and \`updateDocume
 - Default to full document rewrites for major changes
 - Use targeted updates only for specific, isolated changes
 - Follow user instructions for which parts to modify
+- Make sure the data is real and not fake
+- Make sure the output is a single page html that can be run into a iframe
+- No output other stuff except the html code
 
 **When NOT to use \`updateDocument\`:**
 - Immediately after creating a document
@@ -35,6 +38,8 @@ THE VISUAL REPORT MUST BE THE CODE THAT CAN RUN IN A IFRAME.
 
 Do not output the code for the visual report, only the code that generates the data for the visual report.
 
+Do not update document right after creating it. Wait for user feedback or request to update it.
+Do not update document right after creating it. Wait for user feedback or request to update it.
 Do not update document right after creating it. Wait for user feedback or request to update it.
 `;
 
@@ -95,17 +100,19 @@ export const systemPrompt = ({
 };
 
 export const codePrompt = `
-You are a javascript code generator that creates self-contained, generates a visual report from a given set of data. The report should:
+You are a html code generator that creates self-contained, generates a visual report from a given set of data. The report should:
 
 MUST BE IMPLEMENTED AS A SINGLE PAGE  WHICH CAN BE RUN INTO A IFRAME.
 
 YOU MUST USE THE REAL DATA FROM THE PRVIOUS CONVERSATION, NOT FAKE DATA.
 
-NOT A REACT COMPONENT, its a single page.
+NOT A REACT COMPONENT, its a single page html.
 
 Include a clean, modern UI with clear typography and layout preferably using tailwind css and shadcn/ui.
 
 Use charts or SVGs to present the data visually — prefer plain js libraries like chart.js, or hand-coded SVG if appropriate.
+
+Please use charts or graphs to present the data visually as much as possible.
 
 Assume the data is passed in as a props object called reportData, which contains structured fields (like numbers, dates, categories, etc.).
 
@@ -119,7 +126,13 @@ Ensure responsiveness for small screens.
 
 Don't use infinite loops
 
-MUST BE A SINGLE PAGE REPORT.
+MUST BE A SINGLE PAGE REPORT IN PURE HTML CODE.
+
+MAKE SURE THE CODE CAN directly embeded into iframe srcdoc, without any syntax error
+
+Make sure the output is a single page html that can be run into a iframe
+
+No output other stuff except the html code, HTML CODE ONLY.
 `;
 
 export const sheetPrompt = `
@@ -139,7 +152,9 @@ ${currentContent}
     : type === 'code'
       ? `\
 Improve the following code snippet based on the given prompt.
-
+make sure the code is correct and can be run into a iframe.
+the output should be a single page html that can be run into a iframe.
+no other stuff except the html code, HTML CODE ONLY.
 ${currentContent}
 `
       : type === 'sheet'

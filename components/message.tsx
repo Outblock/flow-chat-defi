@@ -21,6 +21,7 @@ import { MessageReasoning } from "./message-reasoning";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { ToolResultExpandable } from "./expnadable-result";
 import { TokenPieChart } from "./charts/token-pie-charts";
+import { TransferApproval } from "./tranasfer-approval";
 import { PriceChat } from "./price-chat";
 
 const PurePreviewMessage = ({
@@ -217,6 +218,8 @@ const PurePreviewMessage = ({
                         />
                       ) : toolName === "get_flow_history_price" ? (
                         <PriceChat result={result} />
+                      ) : toolName === "transfer_erc20_token" ? (
+                        <TransferApproval transactionObject={result} />
                       ) : (
                         <ToolResultExpandable
                           toolName={toolName}

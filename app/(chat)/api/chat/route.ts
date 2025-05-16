@@ -62,14 +62,12 @@ function getStreamContext() {
   return globalStreamContext;
 }
 
-const flowClient = await createMCPClient({
-  transport: new StdioMCPTransport({
-    command: 'node',
-    args: ['mcp/flow-mcp.js'],
-  }),
-});
-
-const flowTools = await flowClient.tools();
+// const flowClient = await createMCPClient({
+//   transport: new StdioMCPTransport({
+//     command: 'node',
+//     args: ['./mcp/flow-mcp.js'],
+//   }),
+// });
 
 export async function POST(request: Request) {
   let requestBody: PostRequestBody;
@@ -159,7 +157,14 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    console.log('API KEY ->', selectedChatModel, process.env.ANTHROPIC_API_KEY);
+    const flowClient = await createMCPClient({
+      transport: {
+        type: 'sse',
+        url: 'https://flow-mcp-production.up.railway.app/sse',
+      },
+    });
+
+    const flowTools = await flowClient.tools();
 
     const stream = createDataStream({
       execute: (dataStream) => {
