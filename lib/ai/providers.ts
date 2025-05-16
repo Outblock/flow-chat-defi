@@ -32,7 +32,6 @@ const xAIModel = {
   'title-model': xai('grok-2-1212'),
   'artifact-model': xai('grok-2-1212'),
 }
-
 export const myProvider = isTestEnvironment
   ? customProvider({
       languageModels: {
@@ -43,7 +42,7 @@ export const myProvider = isTestEnvironment
       },
     })
   : customProvider({
-      languageModels: claudeModel,
+      languageModels: xAIModel,
       imageModels: {
         'small-model': xai.image('grok-2-image'),
       },

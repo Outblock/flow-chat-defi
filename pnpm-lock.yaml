@@ -116,6 +116,9 @@ importers:
       codemirror:
         specifier: ^6.0.1
         version: 6.0.1
+      d3-scale:
+        specifier: ^4.0.2
+        version: 4.0.2
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -237,7 +240,7 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
       usehooks-ts:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1(react@19.0.0-rc-45804af1-20241021)
       viem:
         specifier: 2.x
