@@ -21,6 +21,7 @@ import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import { ToolResultExpandable } from './expnadable-result';
 import { TokenPieChart } from './charts/token-pie-charts';
+import { TransferApproval } from './tranasfer-approval';
 
 const PurePreviewMessage = ({
   chatId,
@@ -214,6 +215,8 @@ const PurePreviewMessage = ({
                           result={result}
                           isReadonly={isReadonly}
                         />
+                      ) : toolName === 'transfer_erc20_token' ? (
+                        <TransferApproval transactionObject={result} />
                       ) : (
                         <ToolResultExpandable toolName={toolName} args={toolInvocation.args} result={result} />
                       )}

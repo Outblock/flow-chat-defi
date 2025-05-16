@@ -4,6 +4,7 @@ import {
   wrapLanguageModel,
 } from 'ai';
 import { xai } from '@ai-sdk/xai';
+import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { isTestEnvironment } from '../constants';
 import {
@@ -33,7 +34,17 @@ const xAIModel = {
   'artifact-model': xai('grok-2-1212'),
 }
 
-export type AIProviderType = 'claude' | 'xai';
+const openaiModel = {
+  'chat-model': openai('gpt-4o'),
+  'chat-model-reasoning': wrapLanguageModel({
+    model: openai('gpt-4o'),
+    middleware: extractReasoningMiddleware({ tagName: 'think' }),
+  }),
+  'title-model': openai('gpt-4o'),
+  'artifact-model': openai('gpt-4o'),
+}
+
+export type AIProviderType = 'claude' | 'xai' | 'openai';
 
 function getProviderConfig(providerId: AIProviderType) {
   if (isTestEnvironment) {
@@ -54,6 +65,10 @@ function getProviderConfig(providerId: AIProviderType) {
         imageModels: {
           'small-model': xai.image('grok-2-image'),
         },
+      });
+    case 'openai':
+      return customProvider({
+        languageModels: openaiModel,
       });
     case 'claude':
     default:
