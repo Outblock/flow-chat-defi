@@ -15,7 +15,7 @@ export function PriceChat({ result }: Stock) {
   const id = useId();
   const symbol = "FLOW";
   const price = result[result.length - 1].price;
-  const closedAt = result[result.length - 1].timestamp;
+  const closedAt = result[result.length - 1].timestamp * 1000;
   const delta = price - result[result.length - 2].price;
 
   const [priceAtTime, setPriceAtTime] = useState({
