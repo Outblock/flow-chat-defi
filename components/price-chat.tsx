@@ -5,15 +5,14 @@ import { scaleLinear } from "d3-scale";
 import { subMonths, format } from "date-fns";
 import { useResizeObserver } from "usehooks-ts";
 import { useAIState } from "ai/rsc";
-
 interface Stock {
   result: any[];
-  // type: string;
 }
 
-export function PriceChat({ result }: Stock) {
+export function PriceChat({ result: rawData }: any) {
   const id = useId();
   const symbol = "FLOW";
+  const result = JSON.parse(rawData.content[0].text);
   const price = result[result.length - 1].price;
   const closedAt = result[result.length - 1].timestamp;
   const delta = price - result[result.length - 2].price;
@@ -33,14 +32,13 @@ export function PriceChat({ result }: Stock) {
     box: "border-box",
   });
 
-  // 找出价格的最小值和最大值
+  // Find minimum and maximum prices
   const minPrice = Math.min(...result.map((item) => item.price));
   const maxPrice = Math.max(...result.map((item) => item.price));
 
   const xToDate = (x: number) => {
     let length = result.length;
     const ratio = x / width;
-    console.log(x, width, ratio, "===");
     const idx = Math.floor(ratio * length);
 
     const timestamp = result[idx].timestamp * 1000;
@@ -52,29 +50,29 @@ export function PriceChat({ result }: Stock) {
     const idx = Math.floor(ratio * length);
     return result[idx].price;
   };
-  // 创建 y 轴比例尺，将价格映射到 SVG 坐标系的 y 值
-  const yScale = scaleLinear().domain([minPrice, maxPrice]).range([168, 0]); // SVG 的高度是 168，y 轴从上到下增长，所以反转范围
+  // Create y-axis scale to map prices to SVG coordinate system y values
+  const yScale = scaleLinear().domain([minPrice, maxPrice]).range([168, 0]); // SVG height is 168, y-axis grows from top to bottom, so range is reversed
 
-  // 根据价格数据生成 SVG 路径
+  // Generate SVG path from price data
   const generatePathFromPriceData = (data: any[], yScale: any) => {
     if (!data || data.length === 0) return "";
 
-    // SVG 视图宽度为 250
+    // SVG view width is 250
     const svgWidth = width;
-    // 计算每个数据点的 x 坐标间隔
+    // Calculate x coordinate interval for each data point
     const xStep = svgWidth / (data.length - 1);
 
-    // 开始构建路径字符串，从第一个点开始
+    // Start building path string from first point
     let path = `M -1 ${yScale(data[0].price)}`;
 
-    // 添加所有数据点
+    // Add all data points
     for (let i = 1; i < data.length; i++) {
       const x = i * xStep;
       const y = yScale(data[i].price);
       path += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
     }
 
-    // 添加封闭路径，用于填充区域
+    // Add closing path for area fill
     path += ` L ${svgWidth} ${svgWidth} L 0 ${svgWidth} Z`;
 
     return path;
