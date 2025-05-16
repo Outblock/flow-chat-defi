@@ -5,7 +5,6 @@ import { expect, type Page } from '@playwright/test';
 
 export class ChatPage {
   constructor(private page: Page) {}
-
   public get sendButton() {
     return this.page.getByTestId('send-button');
   }
