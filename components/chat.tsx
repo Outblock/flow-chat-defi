@@ -30,7 +30,7 @@ export function Chat({
   isReadonly,
   session,
   autoResume,
-  selectedProviderId = 'claude',
+  selectedProviderId = 'claude-3-7-sonnet',
 }: {
   id: string;
   initialMessages: Array<UIMessage>;

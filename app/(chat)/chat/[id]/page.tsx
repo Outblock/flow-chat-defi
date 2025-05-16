@@ -67,7 +67,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           isReadonly={session?.user?.id !== chat.userId}
           session={session}
           autoResume={true}
-          selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude'}
+          selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude-3-7-sonnet'}
         />
         <DataStreamHandler id={id} />
       </>
@@ -84,7 +84,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         isReadonly={session?.user?.id !== chat.userId}
         session={session}
         autoResume={true}
-        selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude'}
+        selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude-3-7-sonnet'}
       />
       <DataStreamHandler id={id} />
     </>
