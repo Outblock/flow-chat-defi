@@ -16,56 +16,55 @@ import { CheckIcon, ChevronDownIcon } from 'lucide-react';
 import type { AIProviderType } from '@/lib/ai/providers';
 import { ClaudeIcon, GrokIcon, OpenAIIcon } from './icons';
 
-// 将providers按类型分组
 const claudeProviders = [
   {
     id: 'claude-3-7-sonnet' as const,
     name: 'Claude 3.7 Sonnet',
     description: 'Latest Claude 3.7 Sonnet model',
     icon: <ClaudeIcon />,
-    group: 'Claude 3.7'
+    group: 'Claude'
   },
   {
     id: 'claude-3-5-haiku' as const,
     name: 'Claude 3.5 Haiku',
     description: 'Fast and efficient Claude 3.5 Haiku',
     icon: <ClaudeIcon />,
-    group: 'Claude 3.5'
+    group: 'Claude'
   },
   {
     id: 'claude-3-5-sonnet-v2' as const,
     name: 'Claude 3.5 Sonnet v2',
     description: 'Improved Claude 3.5 Sonnet',
     icon: <ClaudeIcon />,
-    group: 'Claude 3.5'
+    group: 'Claude'
   },
   {
     id: 'claude-3-5-sonnet' as const,
     name: 'Claude 3.5 Sonnet',
     description: 'Original Claude 3.5 Sonnet',
     icon: <ClaudeIcon />,
-    group: 'Claude 3.5'
+    group: 'Claude'
   },
   {
     id: 'claude-3-opus' as const,
     name: 'Claude 3 Opus',
     description: 'Most capable Claude 3 model',
     icon: <ClaudeIcon />,
-    group: 'Claude 3'
+    group: 'Claude'
   },
   {
     id: 'claude-3-sonnet' as const,
     name: 'Claude 3 Sonnet',
     description: 'Balanced Claude 3 model',
     icon: <ClaudeIcon />,
-    group: 'Claude 3'
+    group: 'Claude'
   },
   {
     id: 'claude-3-haiku' as const,
     name: 'Claude 3 Haiku',
     description: 'Fast Claude 3 model',
     icon: <ClaudeIcon />,
-    group: 'Claude 3'
+    group: 'Claude'
   },
 ];
 
@@ -154,16 +153,7 @@ export function AiProviderSelector({
     [optimisticProviderId],
   );
 
-  const groupedProviders = useMemo(() => {
-    const groups = new Map<string, typeof allProviders>();
-    allProviders.forEach(provider => {
-      if (!groups.has(provider.group)) {
-        groups.set(provider.group, []);
-      }
-      groups.get(provider.group)!.push(provider);
-    });
-    return groups;
-  }, []);
+  const groupOrder = ['Claude', 'Grok', 'OpenAI'];
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -211,52 +201,57 @@ export function AiProviderSelector({
             padding-right: 4px;
           }
         `}</style>
-        {Array.from(groupedProviders.entries()).map(([group, providers]) => (
-          <div key={group}>
-            <DropdownMenuLabel 
-              className="text-xs text-muted-foreground px-2 py-1.5 font-semibold"
-            >
-              {group}
-            </DropdownMenuLabel>
-            <DropdownMenuGroup>
-              {providers.map((provider) => {
-                const { id, name, description, icon } = provider;
-                const isSelected = id === optimisticProviderId;
+        {groupOrder.map(groupName => {
+          const providers = allProviders.filter(p => p.group === groupName);
+          if (providers.length === 0) return null;
 
-                return (
-                  <DropdownMenuItem
-                    key={id}
-                    onSelect={() => {
-                      setOpen(false);
-                      startTransition(() => {
-                        setOptimisticProviderId(id);
-                        document.cookie = `ai-provider=${id}; path=/`;
-                        window.location.reload();
-                      });
-                    }}
-                    className="py-2"
-                  >
-                    <div className="flex flex-1 items-start gap-3 p-1">
-                      <div className="flex-shrink-0 mt-1">
-                        {icon}
-                      </div>
-                      <div className="flex flex-col flex-1 min-w-0">
-                        <div className="font-medium truncate">{name}</div>
-                        <div className="text-xs text-muted-foreground line-clamp-2">
-                          {description}
+          return (
+            <div key={groupName}>
+              <DropdownMenuLabel 
+                className="text-xs text-muted-foreground px-2 py-1.5 font-semibold"
+              >
+                {groupName}
+              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                {providers.map((provider) => {
+                  const { id, name, description, icon } = provider;
+                  const isSelected = id === optimisticProviderId;
+
+                  return (
+                    <DropdownMenuItem
+                      key={id}
+                      onSelect={() => {
+                        setOpen(false);
+                        startTransition(() => {
+                          setOptimisticProviderId(id);
+                          document.cookie = `ai-provider=${id}; path=/`;
+                          window.location.reload();
+                        });
+                      }}
+                      className="py-2"
+                    >
+                      <div className="flex flex-1 items-start gap-3 p-1">
+                        <div className="flex-shrink-0 mt-1">
+                          {icon}
                         </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <div className="font-medium truncate">{name}</div>
+                          <div className="text-xs text-muted-foreground line-clamp-2">
+                            {description}
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <CheckIcon className="h-4 w-4 text-foreground flex-shrink-0 mt-1" />
+                        )}
                       </div>
-                      {isSelected && (
-                        <CheckIcon className="h-4 w-4 text-foreground flex-shrink-0 mt-1" />
-                      )}
-                    </div>
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuGroup>
-            {group !== 'Other' && <DropdownMenuSeparator className="my-1" />}
-          </div>
-        ))}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuGroup>
+              {groupName !== 'OpenAI' && <DropdownMenuSeparator className="my-1" />}
+            </div>
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );
