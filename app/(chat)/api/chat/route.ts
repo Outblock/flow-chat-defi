@@ -154,7 +154,7 @@ export async function POST(request: Request) {
       ],
     });
 
-    const walletPrompt = walletContext?.isConnected ? `User Wallet connected successfully! \n User wallet address is ${walletContext?.address} on ${walletContext?.chain}.` : '';
+    const walletPrompt = walletContext?.isConnected ? `User Wallet connected successfully! \n User wallet address is ${walletContext?.address} on ${walletContext?.chain}.` : 'User wallet is not connected.';
 
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
