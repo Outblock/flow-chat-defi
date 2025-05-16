@@ -59,6 +59,7 @@
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "codemirror": "^6.0.1",
+    "d3-scale": "^4.0.2",
     "date-fns": "^4.1.0",
     "diff-match-patch": "^1.0.5",
     "dotenv": "^16.4.5",
@@ -100,7 +101,7 @@
     "swr": "^2.2.5",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "usehooks-ts": "^3.1.0",
+    "usehooks-ts": "^3.1.1",
     "viem": "~2.29.3",
     "wagmi": "^2.15.3",
     "zod": "^3.23.8"

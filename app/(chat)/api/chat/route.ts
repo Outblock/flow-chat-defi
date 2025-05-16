@@ -80,7 +80,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { id, message, selectedChatModel, selectedVisibilityType } =
+    const { id, message, selectedChatModel, selectedVisibilityType, walletContext } =
       requestBody;
 
     const session = await auth();
@@ -154,6 +154,8 @@ export async function POST(request: Request) {
       ],
     });
 
+    const walletPrompt = walletContext?.isConnected ? `User Wallet connected successfully! \n User wallet address is ${walletContext?.address} on ${walletContext?.chain}.` : 'User wallet is not connected.';
+
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
@@ -170,7 +172,7 @@ export async function POST(request: Request) {
       execute: (dataStream) => {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel, requestHints }),
+          system: systemPrompt({ selectedChatModel, requestHints, walletPrompt }),
           messages,
           maxSteps: 5,
           experimental_transform: smoothStream({ chunking: 'word' }),

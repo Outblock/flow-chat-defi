@@ -86,16 +86,18 @@ About the origin of user's request:
 export const systemPrompt = ({
   selectedChatModel,
   requestHints,
+  walletPrompt,
 }: {
   selectedChatModel: string;
   requestHints: RequestHints;
+  walletPrompt: string;
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
 
   if (selectedChatModel === 'chat-model-reasoning') {
-    return `${regularPrompt}\n\n${requestPrompt}`;
+    return `${regularPrompt}\n\n${requestPrompt}\n\n${walletPrompt}`;
   } else {
-    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
+    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}\n\n${walletPrompt}`;
   }
 };
 
