@@ -54,7 +54,7 @@ export const myProvider = isTestEnvironment
       },
     })
   : customProvider({
-      languageModels: claudeModel,
+      languageModels: xAIModel,
       imageModels: {
         'small-model': xai.image('grok-2-image'),
       },
