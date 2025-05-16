@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
       {
         hostname: 'avatar.vercel.sh',
       },
+      {
+        hostname: 'raw.githubusercontent.com',
+      },
+      {
+        hostname: 'coin-images.coingecko.com',
+      },
+      {
+        hostname: 'swap.kittypunch.xyz',
+      }
     ],
   },
 };
