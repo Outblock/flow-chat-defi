@@ -305,10 +305,10 @@ function getProviderConfig(providerId: AIProviderType) {
   }
 }
 
-// Get provider from cookie or default to 'claude-3-7-sonnet'
+// Get provider from cookie or default to 'claude-3-5-haiku'
 function getCurrentProvider(): AIProviderType {
-  if (typeof window === 'undefined') return 'claude-3-7-sonnet';
-  return (document.cookie.match(/ai-provider=([^;]+)/)?.[1] || 'claude-3-7-sonnet') as AIProviderType;
+  if (typeof window === 'undefined') return 'claude-3-5-haiku';
+  return (document.cookie.match(/ai-provider=([^;]+)/)?.[1] || 'claude-3-5-haiku') as AIProviderType;
 }
 
 // Create a proxy to handle provider updates

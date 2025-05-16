@@ -31,7 +31,7 @@ export function Chat({
   isReadonly,
   session,
   autoResume,
-  selectedProviderId = 'claude-3-7-sonnet',
+  selectedProviderId = 'claude-3-5-haiku',
 }: {
   id: string;
   initialMessages: Array<UIMessage>;
@@ -40,7 +40,7 @@ export function Chat({
   isReadonly: boolean;
   session: Session;
   autoResume: boolean;
-  selectedProviderId?: AIProviderType;
+  selectedProviderId: AIProviderType;
 }) {
   const { mutate } = useSWRConfig();
 
