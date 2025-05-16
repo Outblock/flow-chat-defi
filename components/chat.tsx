@@ -20,6 +20,7 @@ import { useSearchParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import { TransactionListenerProvider } from '@/hooks/use-transaction-listener';
+import { useAccount } from 'wagmi';
 
 export function Chat({
   id,
@@ -40,6 +41,8 @@ export function Chat({
 }) {
   const { mutate } = useSWRConfig();
 
+  const { address, isConnected, chain } = useAccount();
+
   const { visibilityType } = useChatVisibility({
     chatId: id,
     initialVisibilityType,
@@ -57,6 +60,7 @@ export function Chat({
     reload,
     experimental_resume,
     data,
+    setData,
   } = useChat({
     id,
     initialMessages,
@@ -68,6 +72,11 @@ export function Chat({
       message: body.messages.at(-1),
       selectedChatModel: initialChatModel,
       selectedVisibilityType: visibilityType,
+      walletContext: {
+        isConnected,
+        address,
+        chain: chain?.name,
+      }
     }),
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
@@ -84,6 +93,7 @@ export function Chat({
   const query = searchParams.get('query');
 
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
+  const [hasPromptConnected, setHasPromptConnected] = useState(false);
 
   useEffect(() => {
     if (query && !hasAppendedQuery) {
@@ -96,6 +106,18 @@ export function Chat({
       window.history.replaceState({}, '', `/chat/${id}`);
     }
   }, [query, append, hasAppendedQuery, id]);
+
+  useEffect(() => {
+    if (isConnected && !hasPromptConnected) {
+      setData([
+        {
+         message: `Wallet connected successfully! \n Your wallet address is ${address} on ${chain?.name}. \n How can I help you today?`
+        }
+      ]);
+
+      setHasPromptConnected(true);
+    }
+  }, [isConnected, address, chain?.name, hasPromptConnected, setData]);
 
   const { data: votes } = useSWR<Array<Vote>>(
     messages.length >= 2 ? `/api/vote?chatId=${id}` : null,

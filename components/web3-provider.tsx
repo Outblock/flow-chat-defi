@@ -13,7 +13,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { ReactNode, useState } from 'react';
-const projectId = "4ce92501df1f39ff6e2edb1adb1ebcd9"
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '';
 /* src/flowWallet.ts */ 
 import { Wallet, getWalletConnectConnector } from '@rainbow-me/rainbowkit';
 
@@ -97,7 +97,7 @@ const connectors = connectorsForWallets(
   }
 );
 
-const config = createConfig({
+export const config = createConfig({
   connectors,
   chains: [flowMainnet],
   ssr: true,
