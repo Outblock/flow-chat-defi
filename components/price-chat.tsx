@@ -16,7 +16,7 @@ export function PriceChat({ result: rawData }: any) {
     rawData.content[0].text
   );
   const price = result[result.length - 1].price;
-  const closedAt = result[result.length - 1].timestamp;
+  const closedAt = result[result.length - 1].timestamp * 1000;
   const delta = price - result[result.length - 2].price;
 
   const [priceAtTime, setPriceAtTime] = useState({
