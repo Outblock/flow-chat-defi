@@ -11,7 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import { CheckIcon, ChevronDownIcon } from 'lucide-react';
 import type { AIProviderType } from '@/lib/ai/providers';
-import { ClaudeIcon, GrokIcon } from './icons';
+import { ClaudeIcon, GrokIcon, OpenAIIcon } from './icons';
 
 const aiProviders = [
   {
@@ -25,6 +25,12 @@ const aiProviders = [
     name: 'xAI',
     description: 'xAI Grok',
     icon: <GrokIcon size={20} className="text-blue-500" />,
+  },
+  {
+    id: 'openai' as const,
+    name: 'OpenAI',
+    description: 'OpenAI GPT-4',
+    icon: <OpenAIIcon size={20} />,
   },
 ];
 
