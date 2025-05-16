@@ -12,7 +12,9 @@ interface Stock {
 export function PriceChat({ result: rawData }: any) {
   const id = useId();
   const symbol = "FLOW";
-  const result = JSON.parse(rawData.content[0].text);
+  const result: { price: number; [key: string]: any }[] = JSON.parse(
+    rawData.content[0].text
+  );
   const price = result[result.length - 1].price;
   const closedAt = result[result.length - 1].timestamp;
   const delta = price - result[result.length - 2].price;

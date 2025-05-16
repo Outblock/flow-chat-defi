@@ -315,7 +315,7 @@ function getCurrentProvider(): AIProviderType {
 const providerHandler = {
   get(target: any, prop: string) {
     const currentProvider = getProviderConfig(getCurrentProvider());
-    return currentProvider[prop];
+    return (currentProvider as any)[prop];
   }
 };
 
