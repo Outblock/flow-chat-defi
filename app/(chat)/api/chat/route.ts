@@ -163,6 +163,7 @@ export async function POST(request: Request) {
       transport: {
         type: 'sse',
         url: 'https://flow-mcp-production.up.railway.app/sse',
+        // url: 'http://localhost:8080/sse',
       },
     });
 
@@ -188,7 +189,6 @@ export async function POST(request: Request) {
             }),
           },
           onFinish: async ({ response }) => {
-            // await flowSseClient.close();
             if (session.user?.id) {
               try {
                 const assistantId = getTrailingMessageId({
@@ -222,6 +222,7 @@ export async function POST(request: Request) {
               } catch (error) {
                 console.error('Failed to save chat', error);
               }
+              // flowClient.close();
             }
           },
           experimental_telemetry: {
@@ -237,7 +238,7 @@ export async function POST(request: Request) {
         });
       },
       onError: error => {
-        // flowSseClient.close();
+        // flowClient.close();
         console.error('Error ---->', error);
         return 'Oops, an error occurred!';
       },

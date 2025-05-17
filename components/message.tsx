@@ -24,6 +24,7 @@ import { TokenPieChart } from "./charts/token-pie-charts";
 import { TransferApproval } from "./tranasfer-approval";
 import { PriceChat } from "./price-chat";
 import TokenList from "../src/components/TokenList";
+import { PunchSwap } from "./punch-swap";
 
 const PurePreviewMessage = ({
   chatId,
@@ -227,6 +228,8 @@ const PurePreviewMessage = ({
                           data={result.content[0].text}
                           address={args.address}
                         />
+                      ) : toolName === "punchswap_swap" ? (
+                        <PunchSwap result={result} />
                       ) : (
                         <ToolResultExpandable
                           toolName={toolName}

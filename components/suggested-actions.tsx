@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Button } from './ui/button';
-import { memo } from 'react';
-import type { UseChatHelpers } from '@ai-sdk/react';
-import type { VisibilityType } from './visibility-selector';
+import { motion } from "framer-motion";
+import { Button } from "./ui/button";
+import { memo } from "react";
+import type { UseChatHelpers } from "@ai-sdk/react";
+import type { VisibilityType } from "./visibility-selector";
 
 interface SuggestedActionsProps {
   chatId: string;
-  append: UseChatHelpers['append'];
+  append: UseChatHelpers["append"];
   selectedVisibilityType: VisibilityType;
 }
 
@@ -19,24 +19,24 @@ function PureSuggestedActions({
 }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: "What is the current price",
+      label: "of flow token?",
+      action: "What is the current price of flow token?",
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: "Generate a report",
+      label: "of this ChanChan's flow address",
+      action: "Generate a report of this ChanChan's flow address",
     },
     {
-      title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
+      title: "Send 1 Hotcocoa to",
+      label: "Leeloo",
+      action: "Send 1 Hotcocoa to Leeloo",
     },
     {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      title: "Use PunchSwap to swap",
+      label: "1 Hotcocoa to WFlow",
+      action: "Use PunchSwap to swap 1 Hotcocoa to WFlow",
     },
   ];
 
@@ -52,15 +52,15 @@ function PureSuggestedActions({
           exit={{ opacity: 0, y: 20 }}
           transition={{ delay: 0.05 * index }}
           key={`suggested-action-${suggestedAction.title}-${index}`}
-          className={index > 1 ? 'hidden sm:block' : 'block'}
+          className={index > 1 ? "hidden sm:block" : "block"}
         >
           <Button
             variant="ghost"
             onClick={async () => {
-              window.history.replaceState({}, '', `/chat/${chatId}`);
+              window.history.replaceState({}, "", `/chat/${chatId}`);
 
               append({
-                role: 'user',
+                role: "user",
                 content: suggestedAction.action,
               });
             }}
@@ -85,5 +85,5 @@ export const SuggestedActions = memo(
       return false;
 
     return true;
-  },
+  }
 );

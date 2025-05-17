@@ -68,6 +68,12 @@ Provide a readable summary of the transaction details before signature request.
 Your communication should be natural, informative, and security-aware. Provide clear explanations for any DeFi term or contract interaction if asked.
 `
 
+export const addressBookPrompt = `
+Leeloo's EVM address is: 0xA60f8a3E6586aA590a4AD9EE0F264A1473Bab7cB
+
+ChanChan's Flow address is: 0x84221fe0294044d7
+`
+
 export interface RequestHints {
   latitude: Geo['latitude'];
   longitude: Geo['longitude'];
@@ -95,9 +101,9 @@ export const systemPrompt = ({
   const requestPrompt = getRequestPromptFromHints(requestHints);
 
   if (selectedChatModel === 'chat-model-reasoning') {
-    return `${regularPrompt}\n\n${requestPrompt}\n\n${walletPrompt}`;
+    return `${regularPrompt}\n\n${requestPrompt}\n\n${walletPrompt}\n\n${addressBookPrompt}`;
   } else {
-    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}\n\n${walletPrompt}`;
+    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}\n\n${walletPrompt}\n\n${addressBookPrompt}`;
   }
 };
 
