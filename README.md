@@ -1,5 +1,5 @@
 <a href="https://flowchart.app/">
-  <img alt="Flow Chart: DeFi & Onchain Analysis for Flow" src="public/images/banner.png" width="300">
+  <img alt="Flow Chart: DeFi & Onchain Analysis for Flow" src="public/images/banner.png">
   <h1 align="center">Flow Chart</h1>
 </a>
 
