@@ -1,25 +1,25 @@
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
 
-import { Chat } from '@/components/chat';
-import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
-import { generateUUID } from '@/lib/utils';
-import { DataStreamHandler } from '@/components/data-stream-handler';
-import { auth } from '../(auth)/auth';
-import { redirect } from 'next/navigation';
-import type { AIProviderType } from '@/lib/ai/providers';
+import { Chat } from "@/components/chat";
+import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
+import { generateUUID } from "@/lib/utils";
+import { DataStreamHandler } from "@/components/data-stream-handler";
+import { auth } from "../(auth)/auth";
+import { redirect } from "next/navigation";
+import type { AIProviderType } from "@/lib/ai/providers";
 
 export default async function Page() {
   const session = await auth();
 
   if (!session) {
-    redirect('/api/auth/guest');
+    redirect("/api/auth/guest");
   }
 
   const id = generateUUID();
 
   const cookieStore = await cookies();
-  const modelIdFromCookie = cookieStore.get('chat-model');
-  const providerIdFromCookie = cookieStore.get('ai-provider');
+  const modelIdFromCookie = cookieStore.get("chat-model");
+  const providerIdFromCookie = cookieStore.get("ai-provider");
 
   if (!modelIdFromCookie) {
     return (
@@ -33,7 +33,10 @@ export default async function Page() {
           isReadonly={false}
           session={session}
           autoResume={false}
-          selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude-3-7-sonnet'}
+          selectedProviderId={
+            (providerIdFromCookie?.value as AIProviderType) ||
+            "claude-3-5-haiku"
+          }
         />
         <DataStreamHandler id={id} />
       </>
@@ -51,7 +54,9 @@ export default async function Page() {
         isReadonly={false}
         session={session}
         autoResume={false}
-        selectedProviderId={(providerIdFromCookie?.value as AIProviderType) || 'claude-3-7-sonnet'}
+        selectedProviderId={
+          (providerIdFromCookie?.value as AIProviderType) || "claude-3-5-haiku"
+        }
       />
       <DataStreamHandler id={id} />
     </>

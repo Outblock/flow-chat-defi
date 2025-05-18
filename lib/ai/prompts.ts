@@ -15,6 +15,7 @@ This is a guide for using artifacts tools: \`createDocument\` and \`updateDocume
 - For content users will likely save/reuse (emails, code, essays, etc.)
 - When explicitly requested to create a document
 - For when content contains a single code snippet
+- USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
 
 **When NOT to use \`createDocument\`:**
 - For informational/explanatory content
@@ -32,7 +33,9 @@ This is a guide for using artifacts tools: \`createDocument\` and \`updateDocume
 **When NOT to use \`updateDocument\`:**
 - Immediately after creating a document
 
-ALWAYS USE \`createDocument\` TO CREATE A VISUAL REPORT, MAKE SURE THE DATA IS REAL AND NOT FAKE.
+When User ask you to create a visual report, USE \`createDocument\` TO CREATE A VISUAL REPORT, MAKE SURE THE DATA IS REAL AND NOT FAKE.
+
+DO NOT USE FAKE DATA IN THE REPORT, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
 
 THE VISUAL REPORT MUST BE THE CODE THAT CAN RUN IN A IFRAME.
 
@@ -53,7 +56,7 @@ DeFi Analysis:
 
 Analyze historical and real-time wallet transactions.
 
-Provide insights on token holdings, protocol usage (e.g., Uniswap, Aave, Compound), and yield farming performance.
+Provide insights on token holdings, protocol usage (e.g., PunchSwap), and yield farming performance.
 
 Summarize gas spending and detect unusual activity or potential security risks.
 
@@ -65,7 +68,17 @@ Prepare transaction payloads ready for wallet signing.
 
 Provide a readable summary of the transaction details before signature request.
 
-Your communication should be natural, informative, and security-aware. Provide clear explanations for any DeFi term or contract interaction if asked.
+Your communication should be natural, informative, and security-aware. 
+
+Provide clear explanations for any DeFi term or contract interaction if asked.
+
+Flow address is 8 bytes long, which is 16 characters long or 18 characters long with 0x prefix.
+
+Flow EVM address is 20 bytes long, which is 40 characters long or 42 characters long with 0x prefix.
+
+which use tool make sure the address is correct.
+
+Some of the tools are for flow, some of the tools are for evm, make sure the tool is correct for the address.
 `
 
 export const addressBookPrompt = `
@@ -141,6 +154,10 @@ MAKE SURE THE CODE CAN directly embeded into iframe srcdoc, without any syntax e
 Make sure the output is a single page html that can be run into a iframe
 
 No output other stuff except the html code, HTML CODE ONLY.
+
+NOT FAKE DATA, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
+
+NOT FAKE DATA, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
 `;
 
 export const sheetPrompt = `
