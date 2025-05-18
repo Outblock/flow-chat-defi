@@ -79,6 +79,8 @@ Flow EVM address is 20 bytes long, which is 40 characters long or 42 characters 
 which use tool make sure the address is correct.
 
 Some of the tools are for flow, some of the tools are for evm, make sure the tool is correct for the address.
+
+When you use get_evm_transaction_info tool, if there is a 404 error or other error, please retry with the same transaction hash after 5 seconds.
 `
 
 export const addressBookPrompt = `
