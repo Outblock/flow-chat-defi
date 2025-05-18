@@ -23,7 +23,7 @@ import { ToolResultExpandable } from "./expnadable-result";
 import { TokenPieChart } from "./charts/token-pie-charts";
 import { TransferApproval } from "./tranasfer-approval";
 import { PriceChat } from "./price-chat";
-import TokenList from "../src/components/TokenList";
+import TokenList from "./TokenList";
 import { PunchSwap } from "./punch-swap";
 
 const PurePreviewMessage = ({
