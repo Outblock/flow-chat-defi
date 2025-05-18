@@ -1,10 +1,10 @@
 <a href="https://flowchart.app/">
-  <img alt="Flow Chart: DeFi & Onchain Analysis for Flow" src="public/images/banner.png">
-  <h1 align="center">Flow Chart</h1>
+  <img alt="Flow Chat: DeFi & Onchain Analysis for Flow" src="public/images/banner.png">
+  <h1 align="center">Flow Chat</h1>
 </a>
 
 <p align="center">
-  <strong>Flow Chart</strong> is an open-source DeFi and onchain analytics chatbot for the Flow ecosystem, powered by Vercel Chat SDK and Claude AI.
+  <strong>Flow Chat</strong> is an open-source DeFi and onchain analytics chatbot for the Flow ecosystem, powered by Vercel Chat SDK and Claude AI.
 </p>
 
 <p align="center">
@@ -15,9 +15,9 @@
 </p>
 <br/>
 
-## What is Flow Chart?
+## What is Flow Chat?
 
-Flow Chart is a chatbot and analytics platform designed to help users analyze DeFi and onchain activity on both Flow-EVM and Flow mainnet. It leverages the Vercel Chat SDK and Claude AI to provide natural language insights, asset management, and transaction tooling for the Flow ecosystem.
+Flow Chat is a chatbot and analytics platform designed to help users analyze DeFi and onchain activity on both Flow-EVM and Flow mainnet. It leverages the Vercel Chat SDK and Claude AI to provide natural language insights, asset management, and transaction tooling for the Flow ecosystem.
 
 ---
 
@@ -42,13 +42,13 @@ Flow Chart is a chatbot and analytics platform designed to help users analyze De
 
 ## Model Providers
 
-Flow Chart uses [Claude AI](https://www.anthropic.com/) as its default LLM, and our own [FLOW-MCP](https://github.com/Outblock/flow-mcp) for processing Flow onchain requests.
+Flow Chat uses [Claude AI](https://www.anthropic.com/) as its default LLM, and our own [FLOW-MCP](https://github.com/Outblock/flow-mcp) for processing Flow onchain requests.
 
 ---
 
 ## Running locally
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Flow Chart. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+You will need to use the environment variables [defined in `.env.example`](.env.example) to run Flow Chat. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
 
 > Note: Do not commit your `.env` file to version control, as it may expose secrets for your AI and authentication providers.
 
