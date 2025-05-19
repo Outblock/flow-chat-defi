@@ -21,6 +21,11 @@ Flow Chat is a chatbot and analytics platform designed to help users analyze DeF
 
 ---
 
+## Demo
+
+Here's a demo video showcasing Flow Chat's features:
+[Demo Video](https://drive.google.com/file/d/1NCTMsIBx0knxyOIXWqG1ibdF5VBVIhHv/view?usp=sharing)
+
 ## Features
 
 - [x] **DeFi & Onchain Analytics for Flow**
