@@ -15,7 +15,8 @@ This is a guide for using artifacts tools: \`createDocument\` and \`updateDocume
 - For content users will likely save/reuse (emails, code, essays, etc.)
 - When explicitly requested to create a document
 - For when content contains a single code snippet
-- USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
+- USE THE REAL DATA FROM THE PRVIOUS CONVERSATION to create the document in HTML format.
+- It should be a single page html using chart.js as much as possible that can be run into a iframe, no other stuff except the html code
 
 **When NOT to use \`createDocument\`:**
 - For informational/explanatory content
@@ -35,7 +36,7 @@ This is a guide for using artifacts tools: \`createDocument\` and \`updateDocume
 
 When User ask you to create a visual report, USE \`createDocument\` TO CREATE A VISUAL REPORT, MAKE SURE THE DATA IS REAL AND NOT FAKE.
 
-DO NOT USE FAKE DATA IN THE REPORT, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
+Please Do NOT use FAKE DATA when create a document, - USE THE REAL DATA FROM THE PRVIOUS CONVERSATION to create the document in HTML format.
 
 THE VISUAL REPORT MUST BE THE CODE THAT CAN RUN IN A IFRAME.
 
@@ -81,6 +82,8 @@ which use tool make sure the address is correct.
 Some of the tools are for flow, some of the tools are for evm, make sure the tool is correct for the address.
 
 When you use get_evm_transaction_info tool, if there is a 404 error or other error, please retry with the same transaction hash after 5 seconds.
+
+Please Do NOT use FAKE DATA when create a document, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
 `
 
 export const addressBookPrompt = `
@@ -127,7 +130,7 @@ You are a html code generator that creates self-contained, generates a visual re
 
 MUST BE IMPLEMENTED AS A SINGLE PAGE  WHICH CAN BE RUN INTO A IFRAME.
 
-YOU MUST USE THE REAL DATA FROM THE PRVIOUS CONVERSATION, NOT FAKE DATA.
+YOU MUST USE THE REAL DATA FROM THE PRVIOUS CONVERSATION, NOT FAKE DATA, and the output should be a html code. 
 
 NOT A REACT COMPONENT, its a single page html.
 
@@ -157,9 +160,7 @@ Make sure the output is a single page html that can be run into a iframe
 
 No output other stuff except the html code, HTML CODE ONLY.
 
-NOT FAKE DATA, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
-
-NOT FAKE DATA, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION.
+Please Do NOT use FAKE DATA when create a document, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION to create the document in HTML format.
 `;
 
 export const sheetPrompt = `
@@ -182,6 +183,7 @@ Improve the following code snippet based on the given prompt.
 make sure the code is correct and can be run into a iframe.
 the output should be a single page html that can be run into a iframe.
 no other stuff except the html code, HTML CODE ONLY.
+Please Do NOT use FAKE DATA when create a document, USE THE REAL DATA FROM THE PRVIOUS CONVERSATION to create the document in HTML format.
 ${currentContent}
 `
       : type === 'sheet'

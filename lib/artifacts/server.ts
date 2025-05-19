@@ -92,9 +92,9 @@ export function createDocumentHandler<T extends ArtifactKind>(config: {
 export const documentHandlersByArtifactKind: Array<DocumentHandler> = [
   // textDocumentHandler,
   codeDocumentHandler,
-  // imageDocumentHandler,
+  imageDocumentHandler,
   // sheetDocumentHandler,
 ];
 
 // export const artifactKinds = ['text', 'code', 'image', 'sheet'] as const;
-export const artifactKinds = ['code'] as const;
+export const artifactKinds = ['code', 'image'] as const;

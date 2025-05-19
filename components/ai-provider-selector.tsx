@@ -18,7 +18,7 @@ import { ClaudeIcon, GrokIcon, OpenAIIcon } from "./icons";
 
 const claudeProviders = [
   {
-    id: "claude-3-5-haiku" as const,
+    id: "claude-3-7-sonnet" as const,
     name: "Claude 3.7 Sonnet",
     description: "Latest Claude 3.7 Sonnet model",
     icon: <ClaudeIcon />,
