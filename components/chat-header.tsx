@@ -20,14 +20,12 @@ import type { AIProviderType } from "@/lib/ai/providers";
 function PureChatHeader({
   chatId,
   selectedModelId,
-  selectedProviderId,
   selectedVisibilityType,
   isReadonly,
   session,
 }: {
   chatId: string;
   selectedModelId: string;
-  selectedProviderId: AIProviderType;
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
   session: Session;
@@ -60,12 +58,7 @@ function PureChatHeader({
         </Tooltip>
       )}
 
-      {!isReadonly && (
-        <AiProviderSelector
-          selectedProviderId={selectedProviderId}
-          className="order-1 md:order-2"
-        />
-      )}
+      {!isReadonly && <AiProviderSelector className="order-1 md:order-2" />}
 
       {!isReadonly && (
         <ModelSelector
@@ -91,8 +84,5 @@ function PureChatHeader({
 }
 
 export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
-  return (
-    prevProps.selectedModelId === nextProps.selectedModelId &&
-    prevProps.selectedProviderId === nextProps.selectedProviderId
-  );
+  return prevProps.selectedModelId === nextProps.selectedModelId;
 });

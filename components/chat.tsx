@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import type { Attachment, UIMessage } from 'ai';
-import { useChat } from '@ai-sdk/react';
-import { useEffect, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import { ChatHeader } from '@/components/chat-header';
-import type { Vote } from '@/lib/db/schema';
-import { fetcher, generateUUID } from '@/lib/utils';
-import { Artifact } from './artifact';
-import { MultimodalInput } from './multimodal-input';
-import { Messages } from './messages';
-import type { VisibilityType } from './visibility-selector';
-import { useArtifactSelector } from '@/hooks/use-artifact';
-import { unstable_serialize } from 'swr/infinite';
-import { getChatHistoryPaginationKey } from './sidebar-history';
-import { toast } from './toast';
-import type { Session } from 'next-auth';
-import { useSearchParams } from 'next/navigation';
-import { useChatVisibility } from '@/hooks/use-chat-visibility';
-import { useAutoResume } from '@/hooks/use-auto-resume';
-import type { AIProviderType } from '@/lib/ai/providers';
-import { TransactionListenerProvider } from '@/hooks/use-transaction-listener';
-import { useAccount } from 'wagmi';
+import type { Attachment, UIMessage } from "ai";
+import { useChat } from "@ai-sdk/react";
+import { useEffect, useState } from "react";
+import useSWR, { useSWRConfig } from "swr";
+import { ChatHeader } from "@/components/chat-header";
+import type { Vote } from "@/lib/db/schema";
+import { fetcher, generateUUID } from "@/lib/utils";
+import { Artifact } from "./artifact";
+import { MultimodalInput } from "./multimodal-input";
+import { Messages } from "./messages";
+import type { VisibilityType } from "./visibility-selector";
+import { useArtifactSelector } from "@/hooks/use-artifact";
+import { unstable_serialize } from "swr/infinite";
+import { getChatHistoryPaginationKey } from "./sidebar-history";
+import { toast } from "./toast";
+import type { Session } from "next-auth";
+import { useSearchParams } from "next/navigation";
+import { useChatVisibility } from "@/hooks/use-chat-visibility";
+import { useAutoResume } from "@/hooks/use-auto-resume";
+import type { AIProviderType } from "@/lib/ai/providers";
+import { TransactionListenerProvider } from "@/hooks/use-transaction-listener";
+import { useAccount } from "wagmi";
 
 export function Chat({
   id,
@@ -31,7 +31,6 @@ export function Chat({
   isReadonly,
   session,
   autoResume,
-  selectedProviderId = 'claude-3-5-haiku',
 }: {
   id: string;
   initialMessages: Array<UIMessage>;
@@ -40,7 +39,6 @@ export function Chat({
   isReadonly: boolean;
   session: Session;
   autoResume: boolean;
-  selectedProviderId: AIProviderType;
 }) {
   const { mutate } = useSWRConfig();
 
@@ -79,21 +77,21 @@ export function Chat({
         isConnected,
         address,
         chain: chain?.name,
-      }
+      },
     }),
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
     },
     onError: (error) => {
       toast({
-        type: 'error',
+        type: "error",
         description: error.message,
       });
     },
   });
 
   const searchParams = useSearchParams();
-  const query = searchParams.get('query');
+  const query = searchParams.get("query");
 
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
   const [hasPromptConnected, setHasPromptConnected] = useState(false);
@@ -101,12 +99,12 @@ export function Chat({
   useEffect(() => {
     if (query && !hasAppendedQuery) {
       append({
-        role: 'user',
+        role: "user",
         content: query,
       });
 
       setHasAppendedQuery(true);
-      window.history.replaceState({}, '', `/chat/${id}`);
+      window.history.replaceState({}, "", `/chat/${id}`);
     }
   }, [query, append, hasAppendedQuery, id]);
 
@@ -114,8 +112,8 @@ export function Chat({
     if (isConnected && !hasPromptConnected) {
       setData([
         {
-         message: `Wallet connected successfully! \n Your wallet address is ${address} on ${chain?.name}. \n How can I help you today?`
-        }
+          message: `Wallet connected successfully! \n Your wallet address is ${address} on ${chain?.name}. \n How can I help you today?`,
+        },
       ]);
 
       setHasPromptConnected(true);
@@ -124,7 +122,7 @@ export function Chat({
 
   const { data: votes } = useSWR<Array<Vote>>(
     messages.length >= 2 ? `/api/vote?chatId=${id}` : null,
-    fetcher,
+    fetcher
   );
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
@@ -137,9 +135,15 @@ export function Chat({
     data,
     setMessages,
   });
-  
-  const handleTransactionConfirmed = (hash: `0x${string}`, message?: string) => {
-    append({ role: 'user', content: message || `Transaction confirmed: ${hash}` });
+
+  const handleTransactionConfirmed = (
+    hash: `0x${string}`,
+    message?: string
+  ) => {
+    append({
+      role: "user",
+      content: message || `Transaction confirmed: ${hash}`,
+    });
   };
 
   return (
@@ -148,7 +152,6 @@ export function Chat({
         <ChatHeader
           chatId={id}
           selectedModelId={initialChatModel}
-          selectedProviderId={selectedProviderId}
           selectedVisibilityType={initialVisibilityType}
           isReadonly={isReadonly}
           session={session}
