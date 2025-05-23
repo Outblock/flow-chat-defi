@@ -16,126 +16,106 @@ import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import type { AIProviderType } from "@/lib/ai/providers";
 import { ClaudeIcon, GrokIcon, OpenAIIcon } from "./icons";
 
-const claudeProviders = [
-  {
-    id: "claude-3-7-sonnet" as const,
-    name: "Claude 3.7 Sonnet",
-    description: "Latest Claude 3.7 Sonnet model",
+const providerConfig = {
+  Claude: {
     icon: <ClaudeIcon />,
-    group: "Claude",
+    models: [
+      {
+        id: "claude-opus-4" as const,
+        name: "Claude Opus 4",
+        description: "Latest Claude Opus 4 model",
+      },
+      {
+        id: "claude-sonnet-4" as const,
+        name: "Claude Sonnet 4",
+        description: "Latest Claude Sonnet 4 model",
+      },
+      {
+        id: "claude-3-7-sonnet" as const,
+        name: "Claude 3.7 Sonnet",
+        description: "Claude 3.7 Sonnet model",
+      },
+      {
+        id: "claude-3-5-haiku" as const,
+        name: "Claude 3.5 Haiku",
+        description: "Fast and efficient Claude 3.5 Haiku",
+      },
+      {
+        id: "claude-3-5-sonnet" as const,
+        name: "Claude 3.5 Sonnet",
+        description: "Original Claude 3.5 Sonnet",
+      },
+    ],
   },
-  {
-    id: "claude-3-5-haiku" as const,
-    name: "Claude 3.5 Haiku",
-    description: "Fast and efficient Claude 3.5 Haiku",
-    icon: <ClaudeIcon />,
-    group: "Claude",
+  Grok: {
+    icon: <GrokIcon className="text-blue-500" />,
+    models: [
+      {
+        id: "grok-3-beta" as const,
+        name: "Grok 3 Beta",
+        description: "Latest Grok 3 model with full capabilities",
+      },
+      {
+        id: "grok-3-fast-beta" as const,
+        name: "Grok 3 Fast Beta",
+        description: "Optimized for speed with balanced performance",
+      },
+      {
+        id: "grok-3-mini-beta" as const,
+        name: "Grok 3 Mini Beta",
+        description: "Lightweight and efficient version",
+      },
+      {
+        id: "grok-2" as const,
+        name: "Grok 2",
+        description: "Stable Grok 2 release",
+      },
+    ],
   },
-  {
-    id: "claude-3-5-sonnet-v2" as const,
-    name: "Claude 3.5 Sonnet v2",
-    description: "Improved Claude 3.5 Sonnet",
-    icon: <ClaudeIcon />,
-    group: "Claude",
+  OpenAI: {
+    icon: <OpenAIIcon />,
+    models: [
+      {
+        id: "gpt-4o-mini" as const,
+        name: "GPT-4o Mini",
+        description: "Efficient version of GPT-4o",
+      },
+      {
+        id: "gpt-4.1" as const,
+        name: "GPT-4.1",
+        description: "Full GPT-4.1 model",
+      },
+      {
+        id: "gpt-4.1-mini" as const,
+        name: "GPT-4.1 Mini",
+        description: "Lightweight GPT-4.1 model",
+      },
+      {
+        id: "o4-mini" as const,
+        name: "GPT-O4 Mini",
+        description: "Original GPT-O4 model",
+      },
+    ],
   },
-  {
-    id: "claude-3-5-sonnet" as const,
-    name: "Claude 3.5 Sonnet",
-    description: "Original Claude 3.5 Sonnet",
-    icon: <ClaudeIcon />,
-    group: "Claude",
-  },
-  {
-    id: "claude-3-opus" as const,
-    name: "Claude 3 Opus",
-    description: "Most capable Claude 3 model",
-    icon: <ClaudeIcon />,
-    group: "Claude",
-  },
-  {
-    id: "claude-3-sonnet" as const,
-    name: "Claude 3 Sonnet",
-    description: "Balanced Claude 3 model",
-    icon: <ClaudeIcon />,
-    group: "Claude",
-  },
-  {
-    id: "claude-3-haiku" as const,
-    name: "Claude 3 Haiku",
-    description: "Fast Claude 3 model",
-    icon: <ClaudeIcon />,
-    group: "Claude",
-  },
-];
+};
 
-const grokProviders = [
-  {
-    id: "grok-3-beta" as const,
-    name: "Grok 3 Beta",
-    description: "Latest Grok 3 model with full capabilities",
-    icon: <GrokIcon className="text-blue-500" />,
-    group: "Grok",
-  },
-  {
-    id: "grok-3-fast-beta" as const,
-    name: "Grok 3 Fast Beta",
-    description: "Optimized for speed with balanced performance",
-    icon: <GrokIcon className="text-blue-500" />,
-    group: "Grok",
-  },
-  {
-    id: "grok-3-mini-beta" as const,
-    name: "Grok 3 Mini Beta",
-    description: "Lightweight and efficient version",
-    icon: <GrokIcon className="text-blue-500" />,
-    group: "Grok",
-  },
-  {
-    id: "grok-2" as const,
-    name: "Grok 2",
-    description: "Stable Grok 2 release",
-    icon: <GrokIcon className="text-blue-500" />,
-    group: "Grok",
-  },
-];
+const claudeProviders = providerConfig.Claude.models.map((model) => ({
+  ...model,
+  icon: providerConfig.Claude.icon,
+  group: "Claude",
+}));
 
-const openaiProviders = [
-  {
-    id: "openai-o4-mini" as const,
-    name: "GPT-4 Mini",
-    description: "Efficient version of GPT-4",
-    icon: <OpenAIIcon />,
-    group: "OpenAI",
-  },
-  {
-    id: "openai-o3" as const,
-    name: "GPT-3",
-    description: "Full GPT-3 model",
-    icon: <OpenAIIcon />,
-    group: "OpenAI",
-  },
-  {
-    id: "openai-o3-mini" as const,
-    name: "GPT-3 Mini",
-    description: "Lightweight GPT-3 model",
-    icon: <OpenAIIcon />,
-    group: "OpenAI",
-  },
-  {
-    id: "openai-o1" as const,
-    name: "GPT-1",
-    description: "Original GPT-1 model",
-    icon: <OpenAIIcon />,
-    group: "OpenAI",
-  },
-  {
-    id: "openai-o1-mini" as const,
-    name: "GPT-1 Mini",
-    description: "Compact GPT-1 model",
-    icon: <OpenAIIcon />,
-    group: "OpenAI",
-  },
-];
+const grokProviders = providerConfig.Grok.models.map((model) => ({
+  ...model,
+  icon: providerConfig.Grok.icon,
+  group: "Grok",
+}));
+
+const openaiProviders = providerConfig.OpenAI.models.map((model) => ({
+  ...model,
+  icon: providerConfig.OpenAI.icon,
+  group: "OpenAI",
+}));
 
 const allProviders = [...claudeProviders, ...grokProviders, ...openaiProviders];
 

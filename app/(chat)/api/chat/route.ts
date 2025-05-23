@@ -70,6 +70,15 @@ function getStreamContext() {
 // });
 
 export async function POST(request: Request) {
+  const cookieHeader = request.headers.get('cookie') || '';
+  const cookies = Object.fromEntries(
+    cookieHeader.split(';').map(cookie => {
+      const [key, value] = cookie.trim().split('=');
+      return [key, value];
+    })
+  );
+  const providerId = cookies['ai-provider'] || 'claude-3-5-haiku';
+
   let requestBody: PostRequestBody;
 
   try {
@@ -163,7 +172,7 @@ export async function POST(request: Request) {
       transport: {
         type: 'sse',
         url: 'https://flow-mcp-production.up.railway.app/sse',
-        // url: 'http://localhost:8080/sse',
+        // url: 'http://localhost:8080/sse'
       },
     });
 
@@ -172,7 +181,7 @@ export async function POST(request: Request) {
     const stream = createDataStream({
       execute: (dataStream) => {
         const result = streamText({
-          model: myProvider.languageModel(selectedChatModel),
+          model: myProvider.languageModel(providerId, selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints, walletPrompt }),
           messages,
           maxSteps: 5,

@@ -3,6 +3,13 @@ import { streamObject } from 'ai';
 import { myProvider } from '@/lib/ai/providers';
 import { codePrompt, updateDocumentPrompt } from '@/lib/ai/prompts';
 import { createDocumentHandler } from '@/lib/artifacts/server';
+import { cookies } from 'next/headers';
+
+const getModel = async () => {
+  const cookieStore = await cookies();
+  const providerId = cookieStore.get('ai-provider')?.value || 'claude-3-5-haiku';
+  return myProvider.languageModel(providerId, 'artifact-model');
+};
 
 export const codeDocumentHandler = createDocumentHandler<'code'>({
   kind: 'code',
@@ -10,7 +17,7 @@ export const codeDocumentHandler = createDocumentHandler<'code'>({
     let draftContent = '';
 
     const { fullStream } = streamObject({
-      model: myProvider.languageModel('artifact-model'),
+      model: await getModel(),
       system: codePrompt,
       prompt: title,
       schema: z.object({
@@ -42,7 +49,7 @@ export const codeDocumentHandler = createDocumentHandler<'code'>({
     let draftContent = '';
 
     const { fullStream } = streamObject({
-      model: myProvider.languageModel('artifact-model'),
+      model: await getModel(),
       system: updateDocumentPrompt(document.content, 'code'),
       prompt: description,
       schema: z.object({

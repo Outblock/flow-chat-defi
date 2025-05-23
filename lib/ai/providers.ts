@@ -14,167 +14,49 @@ import {
   titleModel,
 } from './models.test';
 
-const claude37SonnetModel = {
-  'chat-model': anthropic('claude-3-7-sonnet-20250219'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: anthropic('claude-3-7-sonnet-20250219'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': anthropic('claude-3-7-sonnet-20250219'),
-  'artifact-model': anthropic('claude-3-7-sonnet-20250219'),
+export const providerPlatforms = {
+  anthropic,
+  xai,
+  openai,
+} as const;
+
+function createModelConfig(provider: keyof typeof providerPlatforms, modelId: string) {
+  const model = providerPlatforms[provider].languageModel(modelId);
+
+  return {
+    'chat-model': model,
+    'chat-model-reasoning': wrapLanguageModel({
+      model,
+      middleware: extractReasoningMiddleware({ tagName: 'think' }),
+    }),
+    'title-model': model,
+    'artifact-model': model,
+  };
 }
 
-const claude35HaikuModel = {
-  'chat-model': anthropic('claude-3-5-haiku-20241022'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: anthropic('claude-3-5-haiku-20241022'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': anthropic('claude-3-5-haiku-20241022'),
-  'artifact-model': anthropic('claude-3-5-haiku-20241022'),
-}
+const claudeOpus4Model = createModelConfig('anthropic', 'claude-opus-4-20250514');
+const claudeSonnet4Model = createModelConfig('anthropic', 'claude-sonnet-4-20250514');
+const claude37SonnetModel = createModelConfig('anthropic', 'claude-3-7-sonnet-20250219');
+const claude35HaikuModel = createModelConfig('anthropic', 'claude-3-5-haiku-20241022');
+const claude35SonnetV2Model = createModelConfig('anthropic', 'claude-3-5-sonnet-20241022');
+const claude35SonnetModel = createModelConfig('anthropic', 'claude-3-5-sonnet-20240620');
+const claude3OpusModel = createModelConfig('anthropic', 'claude-3-opus-20240229');
+const claude3SonnetModel = createModelConfig('anthropic', 'claude-3-sonnet-20240229');
+const claude3HaikuModel = createModelConfig('anthropic', 'claude-3-haiku-20240307');
 
-const claude35SonnetV2Model = {
-  'chat-model': anthropic('claude-3-5-sonnet-20241022'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: anthropic('claude-3-5-sonnet-20241022'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': anthropic('claude-3-5-sonnet-20241022'),
-  'artifact-model': anthropic('claude-3-5-sonnet-20241022'),
-}
+const grok2Model = createModelConfig('xai', 'grok-2-1212');
+const grok3BetaModel = createModelConfig('xai', 'grok-3-beta');
+const grok3FastBetaModel = createModelConfig('xai', 'grok-3-fast-beta');
+const grok3MiniBetaModel = createModelConfig('xai', 'grok-3-mini-beta');
 
-const claude35SonnetModel = {
-  'chat-model': anthropic('claude-3-5-sonnet-20240620'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: anthropic('claude-3-5-sonnet-20240620'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': anthropic('claude-3-5-sonnet-20240620'),
-  'artifact-model': anthropic('claude-3-5-sonnet-20240620'),
-}
-
-const claude3OpusModel = {
-  'chat-model': anthropic('claude-3-opus-20240229'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: anthropic('claude-3-opus-20240229'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': anthropic('claude-3-opus-20240229'),
-  'artifact-model': anthropic('claude-3-opus-20240229'),
-}
-
-const claude3SonnetModel = {
-  'chat-model': anthropic('claude-3-sonnet-20240229'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: anthropic('claude-3-sonnet-20240229'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': anthropic('claude-3-sonnet-20240229'),
-  'artifact-model': anthropic('claude-3-sonnet-20240229'),
-}
-
-const claude3HaikuModel = {
-  'chat-model': anthropic('claude-3-haiku-20240307'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: anthropic('claude-3-haiku-20240307'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': anthropic('claude-3-haiku-20240307'),
-  'artifact-model': anthropic('claude-3-haiku-20240307'),
-}
-
-const grok2Model = {
-  'chat-model': xai('grok-2-1212'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: xai('grok-2-1212'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': xai('grok-2-1212'),
-  'artifact-model': xai('grok-2-1212'),
-}
-
-const grok3BetaModel = {
-  'chat-model': xai('grok-3-beta'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: xai('grok-3-beta'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': xai('grok-3-beta'),
-  'artifact-model': xai('grok-3-beta'),
-}
-
-const grok3FastBetaModel = {
-  'chat-model': xai('grok-3-fast-beta'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: xai('grok-3-fast-beta'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': xai('grok-3-fast-beta'),
-  'artifact-model': xai('grok-3-fast-beta'),
-}
-
-const grok3MiniBetaModel = {
-  'chat-model': xai('grok-3-mini-beta'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: xai('grok-3-mini-beta'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': xai('grok-3-mini-beta'),
-  'artifact-model': xai('grok-3-mini-beta'),
-}
-
-const openaiO4MiniModel = {
-  'chat-model': openai('gpt-4-mini'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: openai('gpt-4-mini'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': openai('gpt-4-mini'),
-  'artifact-model': openai('gpt-4-mini'),
-}
-
-const openaiO3Model = {
-  'chat-model': openai('gpt-3'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: openai('gpt-3'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': openai('gpt-3'),
-  'artifact-model': openai('gpt-3'),
-}
-
-const openaiO3MiniModel = {
-  'chat-model': openai('gpt-3-mini'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: openai('gpt-3-mini'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': openai('gpt-3-mini'),
-  'artifact-model': openai('gpt-3-mini'),
-}
-
-const openaiO1Model = {
-  'chat-model': openai('gpt-1'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: openai('gpt-1'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': openai('gpt-1'),
-  'artifact-model': openai('gpt-1'),
-}
-
-const openaiO1MiniModel = {
-  'chat-model': openai('gpt-1-mini'),
-  'chat-model-reasoning': wrapLanguageModel({
-    model: openai('gpt-1-mini'),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
-  }),
-  'title-model': openai('gpt-1-mini'),
-  'artifact-model': openai('gpt-1-mini'),
-}
+const openai4oMiniModel = createModelConfig('openai', 'gpt-4o-mini');
+const openai41MiniModel = createModelConfig('openai', 'gpt-4.1-mini');
+const openai41Model = createModelConfig('openai', 'gpt-4.1');
+const openaiO4MiniModel = createModelConfig('openai', 'o4-mini');
 
 export type AIProviderType = 
+  | 'claude-opus-4'
+  | 'claude-sonnet-4'
   | 'claude-3-7-sonnet'
   | 'claude-3-5-haiku'
   | 'claude-3-5-sonnet-v2'
@@ -186,11 +68,30 @@ export type AIProviderType =
   | 'grok-3-beta'
   | 'grok-3-fast-beta'
   | 'grok-3-mini-beta'
-  | 'openai-o4-mini'
-  | 'openai-o3'
-  | 'openai-o3-mini'
-  | 'openai-o1'
-  | 'openai-o1-mini';
+  | 'gpt-4o-mini'
+  | 'gpt-4.1-mini'
+  | 'gpt-4.1'
+  | 'o4-mini';
+
+const providerModels: Record<AIProviderType, any> = {
+  'claude-opus-4': claudeOpus4Model,
+  'claude-sonnet-4': claudeSonnet4Model,
+  'claude-3-7-sonnet': claude37SonnetModel,
+  'claude-3-5-haiku': claude35HaikuModel,
+  'claude-3-5-sonnet-v2': claude35SonnetV2Model,
+  'claude-3-5-sonnet': claude35SonnetModel,
+  'claude-3-opus': claude3OpusModel,
+  'claude-3-sonnet': claude3SonnetModel,
+  'claude-3-haiku': claude3HaikuModel,
+  'grok-2': grok2Model,
+  'grok-3-beta': grok3BetaModel,
+  'grok-3-fast-beta': grok3FastBetaModel,
+  'grok-3-mini-beta': grok3MiniBetaModel,
+  'o4-mini': openaiO4MiniModel,
+  'gpt-4.1': openai41Model,
+  'gpt-4.1-mini': openai41MiniModel,
+  'gpt-4o-mini': openai4oMiniModel,
+}
 
 function getProviderConfig(providerId: AIProviderType) {
   if (isTestEnvironment) {
@@ -204,119 +105,48 @@ function getProviderConfig(providerId: AIProviderType) {
     });
   }
 
-  switch (providerId) {
-    case 'claude-3-7-sonnet':
-      return customProvider({
-        languageModels: claude37SonnetModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'claude-3-5-haiku':
-      return customProvider({
-        languageModels: claude35HaikuModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'claude-3-5-sonnet-v2':
-      return customProvider({
-        languageModels: claude35SonnetV2Model,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'claude-3-5-sonnet':
-      return customProvider({
-        languageModels: claude35SonnetModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'claude-3-opus':
-      return customProvider({
-        languageModels: claude3OpusModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'claude-3-sonnet':
-      return customProvider({
-        languageModels: claude3SonnetModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'claude-3-haiku':
-      return customProvider({
-        languageModels: claude3HaikuModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'grok-2':
-      return customProvider({
-        languageModels: grok2Model,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'grok-3-beta':
-      return customProvider({
-        languageModels: grok3BetaModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'grok-3-fast-beta':
-      return customProvider({
-        languageModels: grok3FastBetaModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'grok-3-mini-beta':
-      return customProvider({
-        languageModels: grok3MiniBetaModel,
-        imageModels: {
-          'small-model': xai.image('grok-2-image'),
-        },
-      });
-    case 'openai-o4-mini':
-      return customProvider({
-        languageModels: openaiO4MiniModel,
-      });
-    case 'openai-o3':
-      return customProvider({
-        languageModels: openaiO3Model,
-      });
-    case 'openai-o3-mini':
-      return customProvider({
-        languageModels: openaiO3MiniModel,
-      });
-    case 'openai-o1':
-      return customProvider({
-        languageModels: openaiO1Model,
-      });
-    case 'openai-o1-mini':
-      return customProvider({
-        languageModels: openaiO1MiniModel,
-      });
-  }
+  // Map provider IDs to their language models
+  const providerModel = providerModels[providerId];
+
+  // OpenAI providers don't use image models
+  const isOpenAI = providerId.startsWith('openai-');
+  
+  return customProvider({
+    languageModels: providerModel,
+    ...(!isOpenAI && {
+      imageModels: {
+        'small-model': xai.image('grok-2-image'),
+      }
+    })
+  });
 }
 
 // Get provider from cookie or default to 'claude-3-5-haiku'
-function getCurrentProvider(): AIProviderType {
-  if (typeof window === 'undefined') return 'claude-3-5-haiku';
-  return (document.cookie.match(/ai-provider=([^;]+)/)?.[1] || 'claude-3-5-haiku') as AIProviderType;
+function getCurrentProvider(providerId?: AIProviderType): AIProviderType {
+  if (providerId) return providerId;
+  return 'claude-3-5-haiku';
 }
 
 // Create a proxy to handle provider updates
 const providerHandler = {
   get(target: any, prop: string) {
-    const currentProvider = getProviderConfig(getCurrentProvider());
-    return (currentProvider as any)[prop];
+    return (...args: any[]) => {
+      // Check if first argument is a provider ID
+      const providerId = typeof args[0] === 'string' && args[0] in providerModels ? 
+        args[0] as AIProviderType : 
+        undefined;
+      
+      // Remove provider ID from args if it was passed
+      const modelArgs = providerId ? args.slice(1) : args;
+
+      // Get provider config with optional provider ID
+      const currentProvider = getProviderConfig(getCurrentProvider(providerId));
+
+      // Call the provider method with remaining args
+      return (currentProvider as any)[prop](...modelArgs);
+    };
   }
 };
 
+// Export proxy that allows optional provider ID as first argument
 export const myProvider = new Proxy({}, providerHandler);
