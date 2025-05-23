@@ -25,6 +25,7 @@ import { TransferApproval } from "./tranasfer-approval";
 import { PriceChat } from "./price-chat";
 import TokenList from "./TokenList";
 import { PunchSwap } from "./punch-swap";
+import { BlockHeightCard } from "./block-height";
 
 const PurePreviewMessage = ({
   chatId,
@@ -230,6 +231,8 @@ const PurePreviewMessage = ({
                         />
                       ) : toolName === "punchswap_swap" ? (
                         <PunchSwap result={result} />
+                      ) : toolName === "getFlowBlockHeight" ? (
+                        <BlockHeightCard result={result} />
                       ) : (
                         <ToolResultExpandable
                           toolName={toolName}

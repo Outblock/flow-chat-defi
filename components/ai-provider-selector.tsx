@@ -119,15 +119,20 @@ const openaiProviders = providerConfig.OpenAI.models.map((model) => ({
 
 const allProviders = [...claudeProviders, ...grokProviders, ...openaiProviders];
 
+const getCookie = (name: string) => {
+  return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`))
+    ?.split("=")[1];
+};
+
 export function AiProviderSelector({
-  selectedProviderId,
   className,
-}: {
-  selectedProviderId: AIProviderType;
-} & React.ComponentProps<typeof Button>) {
+}: React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false);
-  const [optimisticProviderId, setOptimisticProviderId] =
-    useOptimistic(selectedProviderId);
+  const [optimisticProviderId, setOptimisticProviderId] = useOptimistic(
+    getCookie("ai-provider") || "claude-3-5-haiku"
+  );
 
   const selectedProvider = useMemo(
     () => allProviders.find((provider) => provider.id === optimisticProviderId),
@@ -203,8 +208,8 @@ export function AiProviderSelector({
                         setOpen(false);
                         startTransition(() => {
                           setOptimisticProviderId(id);
-                          document.cookie = `ai-provider=${id}; path=/`;
-                          window.location.reload();
+                          document.cookie = `ai-provider=${id}; path=/; max-age=31536000`;
+                          // window.location.reload();
                         });
                       }}
                       className="py-2"

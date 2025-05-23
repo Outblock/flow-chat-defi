@@ -53,43 +53,19 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   }
 
   const cookieStore = await cookies();
-  const chatModelFromCookie = cookieStore.get("chat-model");
-  const providerIdFromCookie = cookieStore.get("ai-provider");
-
-  if (!chatModelFromCookie) {
-    return (
-      <>
-        <Chat
-          id={chat.id}
-          initialMessages={convertToUIMessages(messagesFromDb)}
-          initialChatModel={DEFAULT_CHAT_MODEL}
-          initialVisibilityType={chat.visibility}
-          isReadonly={session?.user?.id !== chat.userId}
-          session={session}
-          autoResume={true}
-          selectedProviderId={
-            (providerIdFromCookie?.value as AIProviderType) ||
-            "claude-3-5-haiku"
-          }
-        />
-        <DataStreamHandler id={id} />
-      </>
-    );
-  }
+  const chatModelFromCookie =
+    cookieStore.get("chat-model")?.value || DEFAULT_CHAT_MODEL;
 
   return (
     <>
       <Chat
         id={chat.id}
         initialMessages={convertToUIMessages(messagesFromDb)}
-        initialChatModel={chatModelFromCookie.value}
+        initialChatModel={chatModelFromCookie}
         initialVisibilityType={chat.visibility}
         isReadonly={session?.user?.id !== chat.userId}
         session={session}
         autoResume={true}
-        selectedProviderId={
-          (providerIdFromCookie?.value as AIProviderType) || "claude-3-5-haiku"
-        }
       />
       <DataStreamHandler id={id} />
     </>

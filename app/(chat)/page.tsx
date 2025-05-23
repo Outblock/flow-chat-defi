@@ -33,10 +33,6 @@ export default async function Page() {
           isReadonly={false}
           session={session}
           autoResume={false}
-          selectedProviderId={
-            (providerIdFromCookie?.value as AIProviderType) ||
-            "claude-3-5-haiku"
-          }
         />
         <DataStreamHandler id={id} />
       </>
@@ -54,9 +50,6 @@ export default async function Page() {
         isReadonly={false}
         session={session}
         autoResume={false}
-        selectedProviderId={
-          (providerIdFromCookie?.value as AIProviderType) || "claude-3-5-haiku"
-        }
       />
       <DataStreamHandler id={id} />
     </>
