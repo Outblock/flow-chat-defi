@@ -1,6 +1,12 @@
 "use client";
 
-import { startTransition, useMemo, useOptimistic, useState } from "react";
+import {
+  startTransition,
+  useMemo,
+  useOptimistic,
+  useState,
+  useEffect,
+} from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -119,27 +125,31 @@ const openaiProviders = providerConfig.OpenAI.models.map((model) => ({
 
 const allProviders = [...claudeProviders, ...grokProviders, ...openaiProviders];
 
-const getCookie = (name: string) => {
-  return document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(`${name}=`))
-    ?.split("=")[1];
-};
-
 export function AiProviderSelector({
   className,
 }: React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false);
-  const [optimisticProviderId, setOptimisticProviderId] = useOptimistic(
-    getCookie("ai-provider") || "claude-3-5-haiku"
-  );
+  const [optimisticProviderId, setOptimisticProviderId] =
+    useState("claude-3-5-haiku");
+
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      if (typeof document === "undefined") return "claude-3-5-haiku";
+      return document.cookie
+        .split("; ")
+        .find((row) => row.startsWith(`${name}=`))
+        ?.split("=")[1];
+    };
+    const cookieValue = getCookie("ai-provider");
+    if (cookieValue) setOptimisticProviderId(cookieValue);
+  }, []);
+
+  const groupOrder = ["Claude", "Grok", "OpenAI"];
 
   const selectedProvider = useMemo(
     () => allProviders.find((provider) => provider.id === optimisticProviderId),
     [optimisticProviderId]
   );
-
-  const groupOrder = ["Claude", "Grok", "OpenAI"];
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
