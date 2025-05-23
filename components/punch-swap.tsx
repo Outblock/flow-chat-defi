@@ -96,7 +96,7 @@ export function PunchSwap(result: any) {
         hash,
         tx.tokenInInfos.functionName === "approve"
           ? `I have approved ${inTokenInfo.symbol}. Transaction hash is ${hash}. Let's proceed with swap.`
-          : `I have successfully swapped ${tx.tokenInInfos.amountIn} ${inTokenInfo.symbol} to ${tx.tokenInInfos.amountOut} ${outTokenInfo.symbol}. Transaction hash is ${hash}. Please check my balance.`
+          : `I have successfully signed the transaction to swap ${tx.tokenInInfos.amountIn} ${inTokenInfo.symbol} to ${tx.tokenInInfos.amountOut} ${outTokenInfo.symbol}. Transaction hash is ${hash}. Please check the transaction status and my balance.`
       );
     }
   }, [hash, addTxHash]);
