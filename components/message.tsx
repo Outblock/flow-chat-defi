@@ -26,6 +26,8 @@ import { PriceChat } from "./price-chat";
 import TokenList from "./TokenList";
 import { PunchSwap } from "./punch-swap";
 import { BlockHeightCard } from "./block-height";
+import { AnimatedMarkdown } from "flowtoken";
+import "flowtoken/dist/styles.css";
 
 const PurePreviewMessage = ({
   chatId,
@@ -137,7 +139,14 @@ const PurePreviewMessage = ({
                             message.role === "user",
                         })}
                       >
-                        <Markdown>{sanitizeText(part.text)}</Markdown>
+                        {/* <Markdown>{sanitizeText(part.text)}</Markdown> */}
+                        <AnimatedMarkdown
+                          content={sanitizeText(part.text)}
+                          sep="diff"
+                          animation="blurAndSharpen"
+                          animationDuration="0.5s"
+                          animationTimingFunction="ease-in-out"
+                        />
                       </div>
                     </div>
                   );
