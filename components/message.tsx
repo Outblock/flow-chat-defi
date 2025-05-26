@@ -28,6 +28,7 @@ import { PunchSwap } from "./punch-swap";
 import { BlockHeightCard } from "./block-height";
 import { AnimatedMarkdown } from "flowtoken";
 import "flowtoken/dist/styles.css";
+import { customComponents } from "./markdown-components";
 
 const PurePreviewMessage = ({
   chatId,
@@ -146,6 +147,7 @@ const PurePreviewMessage = ({
                           animation="blurAndSharpen"
                           animationDuration="0.5s"
                           animationTimingFunction="ease-in-out"
+                          customComponents={customComponents}
                         />
                       </div>
                     </div>
