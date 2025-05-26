@@ -43,3 +43,5 @@ yarn-error.log*
 /playwright/*
 
 test.html
+all_merged.md
+/.vscode

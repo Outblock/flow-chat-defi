@@ -38,6 +38,7 @@ import {
 import { after } from 'next/server';
 import type { Chat } from '@/lib/db/schema';
 import { differenceInSeconds } from 'date-fns';
+import { findFlowDoc } from '@/lib/ai/tools/find-flow-doc';
 
 export const maxDuration = 60;
 
@@ -191,6 +192,7 @@ export async function POST(request: Request) {
           tools: {
             ...flowTools,
             getWeather,
+            findFlowDoc,
             getFlowBlockHeight,
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),
@@ -322,7 +324,7 @@ export async function GET(request: Request) {
   }
 
   const emptyDataStream = createDataStream({
-    execute: () => {},
+    execute: () => { },
   });
 
   const stream = await streamContext.resumableStream(

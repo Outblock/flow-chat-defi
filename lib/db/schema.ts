@@ -9,7 +9,11 @@ import {
   primaryKey,
   foreignKey,
   boolean,
+  index,
+  vector,
 } from 'drizzle-orm/pg-core';
+// import { createSelectSchema } from 'drizzle-zod';
+// import { z } from 'zod';
 
 export const user = pgTable('User', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
@@ -168,3 +172,43 @@ export const stream = pgTable(
 );
 
 export type Stream = InferSelectModel<typeof stream>;
+
+export const embeddings = pgTable(
+  'Embeddings',
+  {
+    id: uuid('id').primaryKey().notNull().defaultRandom(),
+    resourceId: uuid('resourceId').notNull().references(
+      () => resources.id,
+      { onDelete: 'cascade' },
+    ),
+    content: text('content').notNull(),
+    embedding: vector('embedding', { dimensions: 1536 }).notNull(),
+  },
+  table => ({
+    embeddingIndex: index('embeddingIndex').using(
+      'hnsw',
+      table.embedding.op('vector_cosine_ops'),
+    ),
+  }),
+);
+
+export type Embedding = InferSelectModel<typeof embeddings>;
+
+export const resources = pgTable("Resources", {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").notNull(),
+  updatedAt: timestamp("updatedAt").notNull(),
+});
+
+// Schema for resources - used to validate API requests
+// export const insertResourceSchema = createSelectSchema(resources)
+//   .extend({})
+//   .omit({
+//     id: true,
+//     createdAt: true,
+//     updatedAt: true,
+//   });
+
+// Type for resources - used to type API request params and within Components
+// export type NewResourceParams = z.infer<typeof insertResourceSchema>;
