@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "next.config.js"
-  ],
+, "lib/actions/upload_resouces.js"  ],
   "exclude": ["node_modules"]
 }

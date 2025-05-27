@@ -1,7 +1,8 @@
 "use client";
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { codeToHtml } from "shiki";
+import { useTheme } from 'next-themes';
 
 interface CodeBlockProps {
   node: any;
@@ -44,13 +45,42 @@ export function CodeBlock({
   children,
   ...props
 }: CodeBlockProps) {
+
+  const { theme } = useTheme();
+  const [html, setHtml] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadHighlightedCode = async () => {
+      const bgColor = theme === "dark" ? "#18181B" : "#ffffff";
+      const selectTheme = theme === "dark" ? "ayu-dark" : "github-light";
+      console.log("theme themethemetheme ==>", theme, selectTheme);
+      const highlighted = await codeToHtml(children, {
+        lang: "cadence",
+        theme: selectTheme,
+        colorReplacements: {
+          "#0b0e14": bgColor,
+        },
+      });
+      setHtml(highlighted);
+    };
+    loadHighlightedCode();
+  }, [children, theme]);
+
   const handleCopy = () => {
-    if (typeof children === "string") {
-      navigator.clipboard.writeText(children);
-    }
+    navigator.clipboard.writeText(children);
   };
-  if (!inline) {
-    const isOneLine = typeof children === "string" && !children.includes("\n");
+
+  const isOneLine = typeof children === "string" && !children.includes("\n");
+
+  if (isOneLine) {
+    return (
+      <code className="whitespace-pre-wrap break-words text-orange-500 p-1 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 rounded-sm">
+        {children}
+      </code>
+    );
+  }
+
+  if (!html) {
     return (
       <div className="not-prose flex flex-col relative group">
         {!isOneLine && (
@@ -68,21 +98,15 @@ export function CodeBlock({
         </pre>
       </div>
     );
-  } else {
-    return (
-      <div className="relative inline-block group">
-        <CopyButton
-          onClick={handleCopy}
-          size={12}
-          className="-top-2 -right-2"
-        />
-        <code
-          className={`${className} text-sm bg-zinc-100 dark:bg-zinc-800 py-0.5 px-1 rounded-md`}
-          {...props}
-        >
-          {children}
-        </code>
-      </div>
-    );
   }
+
+  return (
+    <div className="not-prose flex flex-col relative group">
+      <CopyButton onClick={handleCopy} className="top-2 right-2" />
+      <div
+        className="text-sm w-full overflow-x-auto dark:bg-zinc-900 p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl dark:text-zinc-50 text-zinc-900"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    </div>
+  );
 }
