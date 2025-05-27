@@ -1,7 +1,5 @@
 import Link from "next/link";
 import React, { memo } from "react";
-import ReactMarkdown, { type Components } from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { CodeBlock } from "./code-block";
 
 export const customComponents = {
@@ -65,38 +63,28 @@ export const customComponents = {
     );
   },
 
-  ol: (props: any) => {
-    const { animateText, node, children, ...rest } = props;
+  ol: ({ node, children, ...props }) => {
     return (
-      <>
-        {animateText(
-          <ol className="list-decimal list-outside ml-4" {...rest}>
-            {children}
-          </ol>
-        )}
-      </>
+      <ol className="list-decimal list-outside ml-4" {...props}>
+        {children}
+      </ol>
     );
   },
-  li: (props: any) => {
-    const { animateText, node, children, ...rest } = props;
+  li: ({ node, children, ...props }) => {
     return (
-      <li className="py-1" {...rest}>
-        {animateText(children)}
+      <li className="py-1" {...props}>
+        {children}
       </li>
     );
   },
-  ul: (props: any) => {
-    const { animateText, node, children, ...rest } = props;
+  ul: ({ node, children, ...props }) => {
     return (
-      <>
-        {animateText(
-          <ul className="list-decimal list-outside ml-4" {...rest}>
-            {children}
-          </ul>
-        )}
-      </>
+      <ul className="list-disc list-outside ml-4" {...props}>
+        {children}
+      </ul>
     );
   },
+
   strong: (props: any) => {
     const { animateText, node, children, ...rest } = props;
     return (
@@ -119,6 +107,7 @@ export const customComponents = {
       {children}
     </Link>
   ),
+
   h1: (props: any) => {
     const { animateText, node, children, ...rest } = props;
     return (
