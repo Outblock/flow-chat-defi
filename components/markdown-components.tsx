@@ -63,21 +63,21 @@ export const customComponents = {
     );
   },
 
-  ol: ({ node, children, ...props }) => {
+  ol: ({ node, children, ...props }: any) => {
     return (
       <ol className="list-decimal list-outside ml-4" {...props}>
         {children}
       </ol>
     );
   },
-  li: ({ node, children, ...props }) => {
+  li: ({ node, children, ...props }: any) => {
     return (
       <li className="py-1" {...props}>
         {children}
       </li>
     );
   },
-  ul: ({ node, children, ...props }) => {
+  ul: ({ node, children, ...props }: any) => {
     return (
       <ul className="list-disc list-outside ml-4" {...props}>
         {children}
