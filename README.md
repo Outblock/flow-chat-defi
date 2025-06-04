@@ -15,60 +15,64 @@
 </p>
 <br/>
 
-## What is Flow Chat?
+# 🧠 Flow Chat · [Try it Live](https://ai-chat-defi.vercel.app/)
 
-Flow Chat is a chatbot and analytics platform designed to help users analyze DeFi and onchain activity on both Flow-EVM and Flow mainnet. It leverages the Vercel Chat SDK and Claude AI to provide natural language insights, asset management, and transaction tooling for the Flow ecosystem.
+**Flow Chat** bridges the power of large language models (LLMs) with the Flow blockchain, unlocking a new frontier for DeFi accessibility and on-chain interaction.
 
----
+## 🚀 What We Built
 
-## Demo
+During our internal hackathon, we created **Flow Chat DeFi** — a conversational AI interface that enables users to interact with the Flow blockchain using natural language.
 
-Here's a demo video showcasing Flow Chat's features:
-[Demo Video](https://drive.google.com/file/d/1NCTMsIBx0knxyOIXWqG1ibdF5VBVIhHv/view?usp=sharing)
+We leveraged Retrieval-Augmented Generation (RAG) to teach LLMs about Flow-specific blockchain knowledge, and integrated real-time on-chain data access using our custom **MCP server**. The result: an intelligent agent that can understand and respond to user questions about Flow DeFi — and even help them interact with their wallet — all via chat.
 
-## Features
+## 💡 Inspiration
 
-- [x] **DeFi & Onchain Analytics for Flow**
-- [x] **ERC20 Transfers** on Flow-EVM
-- [x] **Token Swaps** on Flow-EVM
-- [x] **Onchain Asset Analysis**
-- [x] **Asset Query** (including balances and token info)
-- [x] **Child Account Discovery** on Flow mainnet
-- [x] **Wallet Connection** and context-aware chat
-- [x] **Rich UI** with Next.js, shadcn/ui, and Tailwind CSS
+AI is transforming what's possible. But just like LLMs, blockchains (especially Flow) operate in sandboxed environments. Our goal was to link these two isolated domains.
 
-### Coming Soon
+What if you could talk to your Flow wallet like a friend? What if an AI could explain DeFi positions, execute transactions, or surface insights in plain English?
 
-- [ ] **Flow Mainnet Token Transfers**
-- [ ] **Token Bridging** between Flow and Flow-EVM
-- [ ] **Cadence Code Runner** for smart contract scripting
+That’s the future we’re building towards.
 
----
+## 🛠️ Technologies Used
 
-## Model Providers
+- **[ChatSDK](https://chat-sdk.dev/)** – foundation for chat UI/agent interaction
+- **[AI-SDK](https://ai-sdk.dev/)** – interface for LLMs and tool usage
+- **[MCP Server](https://github.com/Outblock/flow-mcp)** – enables AI to query Flow on-chain/DeFi data
+- **RAG (Retrieval-Augmented Generation)** – to inject blockchain knowledge into LLMs
+- **[RainbowKit](https://rainbowkit.com/)** – for wallet connection and user onboarding
+- **[Vercel](https://vercel.com)** – frontend hosting
+- **[Neon DB](https://neon.com/)** – Postgres-compatible serverless database
+- **[Railway](https://railway.com/)** – MCP server hosting
+- **TypeScript** – everything is written in it
 
-Flow Chat uses [Claude AI](https://www.anthropic.com/) as its default LLM, and our own [FLOW-MCP](https://github.com/Outblock/flow-mcp) for processing Flow onchain requests.
+## 🌐 How to Use
 
----
+1. **Try the demo ** – Interact with Flow DeFi using natural language.
+  > https://ai-chat-defi.vercel.app/
+2. **Clone the repo** and run locally:
+   ```bash
+   git clone https://github.com/Outblock/flow-chat-defi.git
+   cd flow-chat-defi
+   pnpm install
+   pnpm run dev
+   ```
+3. Connect your wallet via RainbowKit
+4. Start chatting! Try asking questions like:
+   - "What's my current lending position on Flow?"
+   - "Can you help me swap $FLOW for $USDC?"
+   - "What's the TVL on Lending Protocol X?"
 
-## Running locally
+## 🌟 Why It Matters
+Flow Chat DeFi makes blockchain more human.
+By allowing natural language as the interface to Web3, we're dramatically lowering the barrier to entry. This can empower:
+New users curious about DeFi but overwhelmed by technicalities.
+Developers building AI-native dApps on Flow.
+Analysts seeking real-time data via conversational interfaces.
+It’s not just a project — it’s a peek into the future of blockchain interaction.
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Flow Chat. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
-
-> Note: Do not commit your `.env` file to version control, as it may expose secrets for your AI and authentication providers.
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
-
-```bash
-pnpm install
-pnpm dev
-```
-
-Your app should now be running on [localhost:3000](http://localhost:3000).
-
----
+## 📎 Project Links
+Hackathon Repo: https://github.com/Outblock/flow-chat-defi
+MCP Server: https://github.com/Outblock/flow-mcp
 
 ## License
 
