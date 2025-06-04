@@ -47,7 +47,7 @@ That’s the future we’re building towards.
 
 ## 🌐 How to Use
 
-1. **Try the demo ** – Interact with Flow DeFi using natural language.
+1. **Try the demo** – Interact with Flow using natural language.
   > https://ai-chat-defi.vercel.app/
 2. **Clone the repo** and run locally:
    ```bash
@@ -58,9 +58,9 @@ That’s the future we’re building towards.
    ```
 3. Connect your wallet via RainbowKit
 4. Start chatting! Try asking questions like:
-   - "What's my current lending position on Flow?"
+   - "What's current Flow token price?"
    - "Can you help me swap $FLOW for $USDC?"
-   - "What's the TVL on Lending Protocol X?"
+   - "What's the trending Defi pool on flow?"
 
 ## 🌟 Why It Matters
 Flow Chat DeFi makes blockchain more human.
