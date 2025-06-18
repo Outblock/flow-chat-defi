@@ -64,7 +64,7 @@ function PureChatHeader({
         <ModelSelector
           session={session}
           selectedModelId={selectedModelId}
-          className="order-1 md:order-3"
+          className="order-1 md:order-3 hidden md:block"
         />
       )}
 
