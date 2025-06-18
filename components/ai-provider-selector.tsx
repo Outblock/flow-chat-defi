@@ -165,7 +165,7 @@ export function AiProviderSelector({
           className="md:px-2 md:h-[34px] flex items-center gap-2"
         >
           {selectedProvider?.icon}
-          <span className="truncate">{selectedProvider?.name}</span>
+          <span className="hidden md:block truncate">{selectedProvider?.name}</span>
           <ChevronDownIcon className="h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
