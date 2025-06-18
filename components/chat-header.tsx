@@ -51,7 +51,7 @@ function PureChatHeader({
               }}
             >
               <PlusIcon />
-              <span className="md:sr-only">New Chat</span>
+              {/* <span className="md:sr-only">New Chat</span> */}
             </Button>
           </TooltipTrigger>
           <TooltipContent>New Chat</TooltipContent>
@@ -68,7 +68,7 @@ function PureChatHeader({
         />
       )}
 
-      {!isReadonly && (
+      {!isReadonly && windowWidth >= 768 && (
         <VisibilitySelector
           chatId={chatId}
           selectedVisibilityType={selectedVisibilityType}
