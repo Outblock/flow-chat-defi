@@ -74,7 +74,7 @@ export function CodeBlock({
 
   if (isOneLine) {
     return (
-      <code className="whitespace-pre-wrap break-words text-orange-500 p-1 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 rounded-sm">
+      <code className="whitespace-pre-wrap break-words text-orange-500 p-1 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 rounded-sm max-w-full overflow-x-auto">
         {children}
       </code>
     );
@@ -92,9 +92,9 @@ export function CodeBlock({
             isOneLine ? "p-1" : "p-4"
           } border border-zinc-200 dark:border-zinc-700 ${
             isOneLine ? "rounded-sm" : "rounded-xl"
-          } dark:text-zinc-50 text-zinc-900`}
+          } dark:text-zinc-50 text-zinc-900 min-w-0`}
         >
-          <code className="whitespace-pre-wrap break-words">{children}</code>
+          <code className="whitespace-pre break-all sm:break-words">{children}</code>
         </pre>
       </div>
     );
@@ -104,7 +104,7 @@ export function CodeBlock({
     <div className="not-prose flex flex-col relative group">
       <CopyButton onClick={handleCopy} className="top-2 right-2" />
       <div
-        className="text-sm w-full overflow-x-auto dark:bg-zinc-900 p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl dark:text-zinc-50 text-zinc-900"
+        className="text-sm w-full overflow-x-auto dark:bg-zinc-900 p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl dark:text-zinc-50 text-zinc-900 min-w-0"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>
